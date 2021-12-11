@@ -3,10 +3,7 @@ package cz.gyarab3e.rocnikovaprace3.controller;
 import cz.gyarab3e.rocnikovaprace3.jpa.User;
 import cz.gyarab3e.rocnikovaprace3.services.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
