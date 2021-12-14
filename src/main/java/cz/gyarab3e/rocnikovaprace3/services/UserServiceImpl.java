@@ -1,13 +1,23 @@
 package cz.gyarab3e.rocnikovaprace3.services;
 
-import cz.gyarab3e.rocnikovaprace3.jpa.User;
+import cz.gyarab3e.rocnikovaprace3.jpa.GameUser;
+import cz.gyarab3e.rocnikovaprace3.jpa.UserRepository;
 import org.springframework.stereotype.Service;
 
-@Service
-public class UserServiceImpl implements UserService{
-    @Override
-    public void signUp(User user) {
+import javax.transaction.Transactional;
 
+@Service
+@Transactional
+public class UserServiceImpl implements UserService{
+    private UserRepository userRepository;
+
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public void signUp(GameUser user) {
+        userRepository.save(user);
     }
 
     @Override
@@ -16,12 +26,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User getUser(String username) {
+    public GameUser getUser(String username) {
         return null;
     }
 
     @Override
-    public void updateUser(User user) {
+    public void updateUser(GameUser user) {
 
     }
 }

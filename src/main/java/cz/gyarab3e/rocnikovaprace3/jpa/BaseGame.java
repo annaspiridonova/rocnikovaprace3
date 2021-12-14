@@ -4,5 +4,5 @@ public class BaseGame {
     private int id;
     private String playingCode;
     private Status status;
-    private User winner;
+    private GameUser winner;
 }

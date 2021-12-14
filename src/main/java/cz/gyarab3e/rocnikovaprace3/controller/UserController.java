@@ -1,6 +1,6 @@
 package cz.gyarab3e.rocnikovaprace3.controller;
 
-import cz.gyarab3e.rocnikovaprace3.jpa.User;
+import cz.gyarab3e.rocnikovaprace3.jpa.GameUser;
 import cz.gyarab3e.rocnikovaprace3.services.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,7 @@ public class UserController {
 
     @PostMapping("/signUp")
     public void signUp(@RequestBody UserHolder holder){
-        User user = new User();
+        GameUser user = new GameUser();
         user.setUsername(holder.getUsername());
         String password = holder.getPassword();
         String encodedPassword = passwordEncoder.encode(password);

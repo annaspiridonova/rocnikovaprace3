@@ -1,9 +1,12 @@
 package cz.gyarab3e.rocnikovaprace3.jpa;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
-public class User {
+@Entity
+public class GameUser {
+    @Id
     private String username;
     private String password;
-    private byte[] avatar;
     private int winningRate;
 
     public String getUsername() {
@@ -20,14 +23,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public byte[] getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(byte[] avatar) {
-        this.avatar = avatar;
     }
 
     public int getWinningRate() {

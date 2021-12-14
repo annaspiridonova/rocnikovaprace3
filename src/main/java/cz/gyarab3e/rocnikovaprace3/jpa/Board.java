@@ -6,7 +6,7 @@ public class Board {
     private CellStatus[][] cellStatuses;
     private String structure;
     private Game game;
-    private User user;
+    private GameUser user;
     private List<Move> moves;
 
 }

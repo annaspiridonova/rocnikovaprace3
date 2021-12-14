@@ -1,11 +1,10 @@
 package cz.gyarab3e.rocnikovaprace3.services;
 
-import cz.gyarab3e.rocnikovaprace3.jpa.User;
-import org.springframework.stereotype.Service;
+import cz.gyarab3e.rocnikovaprace3.jpa.GameUser;
 
 public interface UserService {
-    void signUp(User user);
+    void signUp(GameUser user);
     void signIn(String username, String password);
-    User getUser(String username);
-    void updateUser(User user);
+    GameUser getUser(String username);
+    void updateUser(GameUser user);
 }
