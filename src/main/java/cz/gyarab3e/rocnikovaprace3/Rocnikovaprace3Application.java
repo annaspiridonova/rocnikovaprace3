@@ -50,6 +50,7 @@ public class Rocnikovaprace3Application {
 
         return em;
     }
+
     Properties additionalProperties() {
         Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
@@ -57,10 +58,12 @@ public class Rocnikovaprace3Application {
 
         return properties;
     }
+
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(emf);
+
         return transactionManager;
     }
 }
