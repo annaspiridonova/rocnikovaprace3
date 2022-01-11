@@ -2,63 +2,62 @@ package cz.gyarab3e.rocnikovaprace3.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 
 import static cz.gyarab3e.rocnikovaprace3.controller.SecurityConstants.*;
 
-public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
-    private AuthenticationManager authenticationManager;
-
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-
-        setFilterProcessesUrl(SIGN_IN_URL);
+    public JWTAuthenticationFilter(AuthenticationManager authManager) {
+        super(authManager);
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest req,
-                                                HttpServletResponse res) throws AuthenticationException {
-        try {
-            UserHolder creds = new ObjectMapper()
-                    .readValue(req.getInputStream(), UserHolder.class);
+    protected void doFilterInternal(HttpServletRequest req,
+                                    HttpServletResponse res,
+                                    FilterChain chain) throws IOException, ServletException {
+        String header = req.getHeader(HEADER_STRING);
 
-            return authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            creds.getUsername(),
-                            creds.getPassword(),
-                            new ArrayList<>())
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (header == null || !header.startsWith(TOKEN_PREFIX)) {
+            chain.doFilter(req, res);
+            return;
         }
+
+        UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        chain.doFilter(req, res);
     }
 
-    @Override
-    protected void successfulAuthentication(HttpServletRequest req,
-                                            HttpServletResponse res,
-                                            FilterChain chain,
-                                            Authentication auth) throws IOException {
-        String token = JWT.create()
-                .withSubject(((UserHolder) auth.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .sign(Algorithm.HMAC512(SECRET.getBytes()));
+    // Reads the JWT from the Authorization header, and then uses JWT to validate the token
+    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+        String token = request.getHeader(HEADER_STRING);
 
-        String body = ((UserHolder) auth.getPrincipal()).getUsername() + " " + token;
+        if (token != null) {
+            // parse the token.
+            String user = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
+                    .build()
+                    .verify(token.replace(TOKEN_PREFIX, ""))
+                    .getSubject();
 
-        res.getWriter().write(body);
-        res.getWriter().flush();
+            if (user != null) {
+                // new arraylist means authorities
+                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+            }
+
+            return null;
+        }
+
+        return null;
     }
 }
