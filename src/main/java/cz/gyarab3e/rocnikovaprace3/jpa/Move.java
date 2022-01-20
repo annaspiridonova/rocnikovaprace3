@@ -6,5 +6,4 @@ public class Move {
     private int x;
     private int y;
     private Date timestamp;
-    private Board board;
 }

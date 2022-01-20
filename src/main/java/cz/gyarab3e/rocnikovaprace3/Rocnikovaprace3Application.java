@@ -54,7 +54,7 @@ public class Rocnikovaprace3Application {
     Properties additionalProperties() {
         Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL10Dialect");
+        properties.setProperty("hibernate.dialect", "cz.gyarab3e.rocnikovaprace3.jpa.PostgreSQL95ArrayDialect");
 
         return properties;
     }

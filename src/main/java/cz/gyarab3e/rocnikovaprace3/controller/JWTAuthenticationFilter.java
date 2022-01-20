@@ -2,6 +2,8 @@ package cz.gyarab3e.rocnikovaprace3.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import cz.gyarab3e.rocnikovaprace3.jpa.GameUser;
+import cz.gyarab3e.rocnikovaprace3.services.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,10 +19,12 @@ import java.util.ArrayList;
 import static cz.gyarab3e.rocnikovaprace3.controller.SecurityConstants.*;
 
 public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
-
-    public JWTAuthenticationFilter(AuthenticationManager authManager) {
+    private final UserService userService;
+    public JWTAuthenticationFilter(AuthenticationManager authManager, UserService userService) {
         super(authManager);
+        this.userService=userService;
     }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest req,
@@ -45,12 +49,13 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
         if (token != null) {
             // parse the token.
-            String user = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
+            String username = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
                     .build()
                     .verify(token.replace(TOKEN_PREFIX, ""))
                     .getSubject();
 
-            if (user != null) {
+            if (username != null) {
+                GameUser user=userService.getUser(username);
                 // new arraylist means authorities
                 return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
             }
