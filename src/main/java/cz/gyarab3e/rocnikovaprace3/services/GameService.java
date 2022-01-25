@@ -11,7 +11,8 @@ public interface GameService {
      Move getLastMove(int id);
      List<Move> getMoves(int id);
      BaseGame getBaseGame(int id);
-     Game getGame(int id);
+     Game getGame(Long id);
      Game getCurrentGame();
-     BaseGame abandon(int id);
+     BaseGame abandon(Long id);
+     void saveBoard(Long id,CellStatus[][] board);
 }

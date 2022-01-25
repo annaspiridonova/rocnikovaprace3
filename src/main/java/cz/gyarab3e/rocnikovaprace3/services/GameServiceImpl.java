@@ -42,9 +42,24 @@ public class GameServiceImpl implements GameService{
             gameRepository.save(game);
             return game;
         }else{
-            //to do
+            //todo
             return null;
         }
+    }
+
+
+    @Override
+    public void saveBoard(Long id, CellStatus[][] board) {
+    Game game =getGame(id);
+    Authentication user = SecurityContextHolder.getContext().getAuthentication();
+    if (user.getName().equals(game.getUser1().getUsername())){
+        game.setCellStatuses1(board);
+    }else if(user.getName().equals(game.getUser2().getUsername())){
+        game.setCellStatuses2(board);
+    }else {
+        //todo
+    }
+    gameRepository.save(game);
     }
 
     @Override
@@ -68,9 +83,14 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public Game getGame(int id) {
-        return null;
-    }
+    public Game getGame(Long id) {
+        Optional<Game> game = gameRepository.findById(id);
+       if(game.isPresent()){
+           return game.get();
+       } else{
+           return null;
+       }
+        }
 
     @Override
     public Game getCurrentGame() {
@@ -78,7 +98,10 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public BaseGame abandon(int id) {
+    public BaseGame abandon(Long id) {
         return null;
     }
+
+
+
 }

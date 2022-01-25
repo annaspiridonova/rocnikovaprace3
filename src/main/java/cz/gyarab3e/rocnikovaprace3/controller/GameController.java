@@ -2,7 +2,7 @@ package cz.gyarab3e.rocnikovaprace3.controller;
 
 import cz.gyarab3e.rocnikovaprace3.jpa.Game;
 import cz.gyarab3e.rocnikovaprace3.services.GameService;
-import cz.gyarab3e.rocnikovaprace3.services.GameServiceImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,5 +27,11 @@ public class GameController {
     public ResponseEntity<GameHolder> joinGame(@RequestBody String code){
         Game game=gameService.joinGame(code);
         return ResponseEntity.ok(new GameHolder(game.getId(),game.getPlayingCode()));
+    }
+
+    @PostMapping("/saveBoard")
+    public ResponseEntity<Void> saveBoard(@RequestBody BoardHolder boardholder){
+        gameService.saveBoard(boardholder.id, boardholder.getBoard());
+       return new ResponseEntity<>( HttpStatus.OK );
     }
 }
