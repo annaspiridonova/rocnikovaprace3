@@ -33,6 +33,7 @@ public class Rocnikovaprace3Application {
         return new BCryptPasswordEncoder(12);
     }
 
+    // http://localhost:8080/swagger-ui.html
 
     public static void main(String[] args) {
         SpringApplication.run(Rocnikovaprace3Application.class, args);

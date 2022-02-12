@@ -32,7 +32,7 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
     }
-// http://localhost:8080/swagger-ui.html
+
     @PostMapping("/signUp")
     public void signUp(@RequestBody UserHolder holder){
         GameUser user = new GameUser();
