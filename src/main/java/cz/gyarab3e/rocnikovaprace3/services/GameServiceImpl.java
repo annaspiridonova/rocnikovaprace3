@@ -84,7 +84,6 @@ public class GameServiceImpl implements GameService {
 
             case blank -> {cellStatuses[x][y]=CellStatus.unavailable;
                 moveStatus= MoveStatus.missed;
-                break;
             }
             case filled -> {
                 if (wasItTheWholeShip(x, y, cellStatuses)) {
@@ -107,6 +106,10 @@ public class GameServiceImpl implements GameService {
         return moveStatus;
 
     }
+//    private boolean BoardValidation(CellStatus[][] cellStatuses){
+//
+//
+//    }
     private boolean anyShipsLeft(CellStatus[][] cellStatuses){
         for (int row = 0; row < cellStatuses.length; row++) {
             for (int col = 0; col < cellStatuses[row].length; col++) {
@@ -181,7 +184,6 @@ public class GameServiceImpl implements GameService {
             return false;
         }
         if (y - 1 >0 && cellStatus[x][y - 1]==CellStatus.filled) {
-
             return false;
         } else {
             return true;
