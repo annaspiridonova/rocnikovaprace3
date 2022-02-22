@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -102,7 +103,8 @@ public class GameServiceImpl implements GameService {
             case unavailable -> throw new RuntimeException(); //todo
 
         }
-        gameRepository.saveAndFlush(game);
+        game.setUpdatedate(new Date());
+        gameRepository.save(game);
         return moveStatus;
 
     }
@@ -120,10 +122,23 @@ public class GameServiceImpl implements GameService {
         }return false;
     }
 
-    public Boolean boardValidaton(CellStatus[][] board){
-        
-        return true;
-    }
+//    public Boolean boardValidaton(CellStatus[][] board){
+//        int a=0;
+//        boolean oneChecked,twoChecked,threeChecked,fourChecked,fiveChecked=false;
+//        for (int i = 0; i< board.length; i++){
+//            for (int j = 0; j< board.length; j++)
+//                if(board[i][j].equals(CellStatus.filled)){
+//                    a++;
+//                }}
+//        if(a==15){
+//            do{
+//                markIfExist(a,y-1,cellStatus);
+//                markIfExist(a,y+1,cellStatus);
+//                a++;
+//            }while (a< board.length && board[a][y]==CellStatus.shot);
+//        }
+//        else return false;
+//    }
     private void markIfExist(int x, int y, CellStatus[][] cellStatus){
         if(x>0&&x<GameConstants.CELL_SIZE&&y>0&&y<GameConstants.CELL_SIZE&&cellStatus[x][y]!=CellStatus.shot){
             cellStatus[x][y]=CellStatus.unavailable;

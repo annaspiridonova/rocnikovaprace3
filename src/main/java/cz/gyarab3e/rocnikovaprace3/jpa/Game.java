@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @TypeDef(
@@ -18,9 +19,10 @@ public class Game extends BaseGame{
 
     @ManyToOne
     private GameUser user2;
-    @Id
+
+    private Date updatedate;
+
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
     @Type(
             type = "cell_status_array",
             parameters = @org.hibernate.annotations.Parameter(
@@ -44,7 +46,16 @@ public class Game extends BaseGame{
             name = "cell_grid2",
             columnDefinition = "cell_status[][]"
     )
+
     private CellStatus[][] cellStatuses2;
+
+    public Date getUpdatedate() {
+        return updatedate;
+    }
+
+    public void setUpdatedate(Date updatedate) {
+        this.updatedate = updatedate;
+    }
 
     public GameUser getUser1() {
         return user1;
@@ -62,15 +73,6 @@ public class Game extends BaseGame{
         this.user2 = user2;
     }
 
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public CellStatus[][] getCellStatuses1() {
         return cellStatuses1;
