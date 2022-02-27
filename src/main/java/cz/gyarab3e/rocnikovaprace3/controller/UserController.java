@@ -19,7 +19,7 @@ import org.springframework.web.servlet.function.ServerRequest;
 import java.util.Date;
 
 import static cz.gyarab3e.rocnikovaprace3.controller.SecurityConstants.*;
-
+@CrossOrigin
 @RestController
 @RequestMapping("/users")
 public class UserController {

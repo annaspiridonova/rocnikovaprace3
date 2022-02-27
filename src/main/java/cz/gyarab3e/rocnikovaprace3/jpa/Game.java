@@ -72,7 +72,7 @@ public class Game extends BaseGame{
     public void setUser2(GameUser user2) {
         this.user2 = user2;
     }
-
+    
 
     public CellStatus[][] getCellStatuses1() {
         return cellStatuses1;
