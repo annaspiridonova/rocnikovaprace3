@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
@@ -16,6 +17,8 @@ import java.util.Optional;
 @Transactional
 public class GameServiceImpl implements GameService {
     private final GameRepository gameRepository;
+
+
 
     public GameServiceImpl(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
@@ -50,6 +53,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void saveBoard(Long id, CellStatus[][] board) {
+//        boardValidaton(board);
         Game game = getGame(id);
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (user.getName().equals(game.getUser1().getUsername())) {
@@ -125,46 +129,12 @@ public class GameServiceImpl implements GameService {
         }
         return false;
     }
-
-    //    public Boolean boardValidaton(CellStatus[][] board){
-//        int a=0;
-//        boolean oneChecked,twoChecked,threeChecked,fourChecked,fiveChecked=false;
-//        for (int i = 0; i< board.length; i++){
-//            for (int j = 0; j< board.length; j++)
-//                if(board[i][j].equals(CellStatus.filled)){
-//                    a++;
-//                }}
-//        if(a==15){
-//            do{
-//                markIfExist(a,y-1,cellStatus);
-//                markIfExist(a,y+1,cellStatus);
-//                a++;
-//            }while (a< board.length && board[a][y]==CellStatus.shot);
-//        }
-//        else return false;
-//    }
     private void markIfExist(int x, int y, CellStatus[][] cellStatus) {
         if (x > 0 && x < GameConstants.CELL_SIZE && y > 0 && y < GameConstants.CELL_SIZE && cellStatus[x][y] != CellStatus.shot) {
             cellStatus[x][y] = CellStatus.unavailable;
         }
     }
 
-//    private boolean anyMoreFilledCells(CellStatus[][] board, int filledCells) {
-//        int a = 0;
-//        for (int i = 0; i < board.length; i++) {
-//            for (int j = 0; j < board[i].length; j++) {
-//                if (board[i][j] == CellStatus.filled) {
-//                    filledCells += 1;
-//                }
-//
-//            }
-//        }
-//        if (a == filledCells) {
-//            return false;
-//        } else {
-//            return true;
-//        }
-//    }
 
 
     private void unavaiableing(int x, int y, CellStatus[][] cellStatus) {
