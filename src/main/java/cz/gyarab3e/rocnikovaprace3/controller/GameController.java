@@ -2,6 +2,7 @@ package cz.gyarab3e.rocnikovaprace3.controller;
 
 import cz.gyarab3e.rocnikovaprace3.jpa.Game;
 import cz.gyarab3e.rocnikovaprace3.services.GameService;
+import cz.gyarab3e.rocnikovaprace3.services.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +34,13 @@ public class GameController {
 
     @PostMapping("/saveBoard")
     public ResponseEntity<Void> saveBoard(@RequestBody BoardHolder boardholder){
-        gameService.saveBoard(boardholder.id, boardholder.getBoard());
-       return new ResponseEntity<>( HttpStatus.OK );
+        try {
+            gameService.saveBoard(boardholder.id, boardholder.getBoard());
+        } catch (ValidationException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>( HttpStatus.BAD_REQUEST );
+        }
+        return new ResponseEntity<>( HttpStatus.OK );
     }
 //make them private
     @PostMapping("/getMove")

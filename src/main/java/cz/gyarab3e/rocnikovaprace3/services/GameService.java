@@ -11,5 +11,6 @@ public interface GameService {
      Game getGame(Long id);
      Game getCurrentGame();
      BaseGame abandon(Long id);
-     void saveBoard(Long id,CellStatus[][] board);
+     void saveBoard(Long id,CellStatus[][] board) throws ValidationException;
+
 }

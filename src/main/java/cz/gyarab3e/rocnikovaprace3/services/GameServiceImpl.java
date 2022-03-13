@@ -52,8 +52,11 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void saveBoard(Long id, CellStatus[][] board) {
-//        boardValidaton(board);
+    public void saveBoard(Long id, CellStatus[][] board) throws ValidationException{
+        boolean validBoard = boardValidaton(board);
+        if(!validBoard){
+            throw new ValidationException();
+        }
         Game game = getGame(id);
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (user.getName().equals(game.getUser1().getUsername())) {
@@ -135,7 +138,147 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+    private int howManyInTherow(int x, int y, CellStatus[][] board) {
+        int returning = 1;
+        int a = 1;
+        int b = 1;
+        int c = 1;
+        int d = 1;
+        if (x - a >=0){
+        while (board[x - a][y] == CellStatus.filled && !diagnal(x - a, y, board)) {
+            returning += 1;
+            board[x - a][y] = CellStatus.unavailable;
+            a--;
+            if(returning>a){
+                returning -= 1000;
+            }
+        }
+        }
+        if(x+b<GameConstants.CELL_SIZE){
+        while (board[x + b][y] == CellStatus.filled && !diagnal(x + b, y, board)) {
+            returning += 1;
+            board[x + b][y] = CellStatus.unavailable;
+            b++;
+            if(returning>b){
+                returning -= 1000;
+            }
+        }
+        }
+        if(x+c<GameConstants.CELL_SIZE){
+        while (board[x][y + c] == CellStatus.filled && !diagnal(x, y + c, board)) {
+            returning += 1;
+            board[x][y + c] = CellStatus.unavailable;
+            c++;
+            if(returning>c){
+                returning -= 1000;
+            }
+        }
+        }
+        if(y-d>=0){
+        while (board[x][y - d] == CellStatus.filled && !diagnal(x, y - d, board)) {
+            returning += 1;
+            board[x][y - d] = CellStatus.unavailable;
+            d--;
+            if(returning>d){
+                returning -= 1000;
+            }
+        }
+        }
+        return returning;
+    }
 
+    private boolean diagnal(int x, int y, CellStatus[][] board) {
+        if (x - 1 >= 0 && y  -1>=0) {
+            if (board[x - 1][y - 1] == CellStatus.filled) {
+                return true;
+            }
+        }
+        if (x + 1 < GameConstants.CELL_SIZE && y + 1 < GameConstants.CELL_SIZE) {
+            if (board[x + 1][y + 1] == CellStatus.filled) {
+                return true;
+            }
+        }
+        if (x - 1 >= 0 && y + 1 < GameConstants.CELL_SIZE) {
+            if (board[x - 1][y + 1] == CellStatus.filled) {
+                return true;
+            }
+        }
+        if (x + 1 < GameConstants.CELL_SIZE && y - 1 >=  0) {
+
+            if (board[x + 1][y - 1] == CellStatus.filled) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean boardValidaton(CellStatus[][] oriBoard) {
+        boolean oneChecked = false, twoChecked = false, threeChecked = false, fourChecked = false, fiveChecked = false;
+        int filledCells=0;
+        CellStatus[][] board = Arrays.stream(oriBoard)
+                .map(a -> Arrays.copyOf(a, oriBoard.length + 1))
+                .toArray(CellStatus[][]::new);
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (board[i][j] == CellStatus.filled) {
+                    filledCells += 1;
+                    if (diagnal(i, j, board)) {
+                        return false;
+                    }
+                    int hmitr = howManyInTherow(i, j, board);
+                    if (hmitr < 0 || hmitr > 5) {
+                        return false;
+                    }
+
+                    if (hmitr == 1) {
+                        if (!oneChecked) {
+                            oneChecked = true;
+                        } else {
+                            return false;
+                        }
+                    }
+                    if (hmitr== 2) {
+                        if (!twoChecked) {
+                            twoChecked = true;
+                            filledCells+=1;
+                        } else {
+                            return false;
+                        }
+                    }
+                    if (hmitr == 3) {
+                        if (!threeChecked) {
+                            threeChecked = true;
+                            filledCells+=2;
+                        } else {
+                            return false;
+                        }
+                    }
+                    if (hmitr == 4) {
+                        if (!fourChecked) {
+                            fourChecked = true;
+                            filledCells+=3;
+                        } else {
+                            return false;
+                        }
+                    }
+                    if (hmitr == 5) {
+                        if (!fiveChecked) {
+                            fiveChecked = true;
+                            filledCells+=4;
+                        } else {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        if (filledCells != 15 || !oneChecked || !fiveChecked || !twoChecked || !threeChecked || !fourChecked) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     private void unavaiableing(int x, int y, CellStatus[][] cellStatus) {
         int a = x;
