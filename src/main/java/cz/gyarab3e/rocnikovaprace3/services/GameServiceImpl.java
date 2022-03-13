@@ -59,7 +59,7 @@ public class GameServiceImpl implements GameService {
         } else {
             //todo
         }
-        if(game.getCellStatuses1()!=null && game.getCellStatuses2()!=null){
+        if (game.getCellStatuses1() != null && game.getCellStatuses2() != null) {
             game.setStatus(Status.running);
         }
         gameRepository.save(game);
@@ -83,21 +83,23 @@ public class GameServiceImpl implements GameService {
         switch (status) {
             case shot -> throw new RuntimeException(); //todo
 
-            case blank -> {cellStatuses[x][y]=CellStatus.unavailable;
-                moveStatus= MoveStatus.missed;
+            case blank -> {
+                cellStatuses[x][y] = CellStatus.unavailable;
+                moveStatus = MoveStatus.missed;
             }
             case filled -> {
                 if (wasItTheWholeShip(x, y, cellStatuses)) {
                     unavaiableing(x, y, cellStatuses);
-                    if(anyShipsLeft(cellStatuses)){
-                        cellStatuses[x][y]=CellStatus.shot;
-                        moveStatus=MoveStatus.wholeShip;
-                    }else {
-                        moveStatus= MoveStatus.won;}
-                }else{
-                    cellStatuses[x][y]=CellStatus.shot;
-                    moveStatus=MoveStatus.shot;
-                }break;
+                    if (anyShipsLeft(cellStatuses)) {
+                        cellStatuses[x][y] = CellStatus.shot;
+                        moveStatus = MoveStatus.wholeShip;
+                    } else {
+                        moveStatus = MoveStatus.won;
+                    }
+                } else {
+                    cellStatuses[x][y] = CellStatus.shot;
+                    moveStatus = MoveStatus.shot;
+                }
             }
 
             case unavailable -> throw new RuntimeException(); //todo
@@ -108,21 +110,23 @@ public class GameServiceImpl implements GameService {
         return moveStatus;
 
     }
-//    private boolean BoardValidation(CellStatus[][] cellStatuses){
+
+    //    private boolean BoardValidation(CellStatus[][] cellStatuses){
 //
 //
 //    }
-    private boolean anyShipsLeft(CellStatus[][] cellStatuses){
+    private boolean anyShipsLeft(CellStatus[][] cellStatuses) {
         for (int row = 0; row < cellStatuses.length; row++) {
             for (int col = 0; col < cellStatuses[row].length; col++) {
-                if (cellStatuses[row][col]==CellStatus.filled) {
+                if (cellStatuses[row][col] == CellStatus.filled) {
                     return true;
                 }
             }
-        }return false;
+        }
+        return false;
     }
 
-//    public Boolean boardValidaton(CellStatus[][] board){
+    //    public Boolean boardValidaton(CellStatus[][] board){
 //        int a=0;
 //        boolean oneChecked,twoChecked,threeChecked,fourChecked,fiveChecked=false;
 //        for (int i = 0; i< board.length; i++){
@@ -139,66 +143,85 @@ public class GameServiceImpl implements GameService {
 //        }
 //        else return false;
 //    }
-    private void markIfExist(int x, int y, CellStatus[][] cellStatus){
-        if(x>0&&x<GameConstants.CELL_SIZE&&y>0&&y<GameConstants.CELL_SIZE&&cellStatus[x][y]!=CellStatus.shot){
-            cellStatus[x][y]=CellStatus.unavailable;
+    private void markIfExist(int x, int y, CellStatus[][] cellStatus) {
+        if (x > 0 && x < GameConstants.CELL_SIZE && y > 0 && y < GameConstants.CELL_SIZE && cellStatus[x][y] != CellStatus.shot) {
+            cellStatus[x][y] = CellStatus.unavailable;
         }
     }
+
+//    private boolean anyMoreFilledCells(CellStatus[][] board, int filledCells) {
+//        int a = 0;
+//        for (int i = 0; i < board.length; i++) {
+//            for (int j = 0; j < board[i].length; j++) {
+//                if (board[i][j] == CellStatus.filled) {
+//                    filledCells += 1;
+//                }
+//
+//            }
+//        }
+//        if (a == filledCells) {
+//            return false;
+//        } else {
+//            return true;
+//        }
+//    }
+
+
     private void unavaiableing(int x, int y, CellStatus[][] cellStatus) {
         int a = x;
         int b = y;
 
-        do{
-            markIfExist(a,y-1,cellStatus);
-            markIfExist(a,y+1,cellStatus);
+        do {
+            markIfExist(a, y - 1, cellStatus);
+            markIfExist(a, y + 1, cellStatus);
             a++;
-        }while (a< cellStatus.length && cellStatus[a][y]==CellStatus.shot);
-        markIfExist(a,y,cellStatus);
-        markIfExist(a,y-1,cellStatus);
-        markIfExist(a,y+1,cellStatus);
+        } while (a < cellStatus.length && cellStatus[a][y] == CellStatus.shot);
+        markIfExist(a, y, cellStatus);
+        markIfExist(a, y - 1, cellStatus);
+        markIfExist(a, y + 1, cellStatus);
 
-        a=x;
-        do{
-            markIfExist(a,y-1,cellStatus);
-            markIfExist(a,y+1,cellStatus);
+        a = x;
+        do {
+            markIfExist(a, y - 1, cellStatus);
+            markIfExist(a, y + 1, cellStatus);
             a--;
-        }while (a>-1&&a< cellStatus.length && cellStatus[a][y]==CellStatus.shot);
-        markIfExist(a,y,cellStatus);
-        markIfExist(a,y-1,cellStatus);
-        markIfExist(a,y+1,cellStatus);
+        } while (a > -1 && a < cellStatus.length && cellStatus[a][y] == CellStatus.shot);
+        markIfExist(a, y, cellStatus);
+        markIfExist(a, y - 1, cellStatus);
+        markIfExist(a, y + 1, cellStatus);
 
-        do{
-            markIfExist(x,b-1,cellStatus);
-            markIfExist(x,b+1,cellStatus);
+        do {
+            markIfExist(x, b - 1, cellStatus);
+            markIfExist(x, b + 1, cellStatus);
             b++;
-        }while (b< cellStatus.length && cellStatus[x][b]==CellStatus.shot);
-        markIfExist(x,b,cellStatus);
-        markIfExist(x-1,b,cellStatus);
-        markIfExist(x+1,b,cellStatus);
+        } while (b < cellStatus.length && cellStatus[x][b] == CellStatus.shot);
+        markIfExist(x, b, cellStatus);
+        markIfExist(x - 1, b, cellStatus);
+        markIfExist(x + 1, b, cellStatus);
 
-        b=y;
-        do{
-            markIfExist(x,b-1,cellStatus);
-            markIfExist(x,b+1,cellStatus);
+        b = y;
+        do {
+            markIfExist(x, b - 1, cellStatus);
+            markIfExist(x, b + 1, cellStatus);
             b--;
-        }while (b>-1&&b< cellStatus.length && cellStatus[x][b]==CellStatus.shot);
-        markIfExist(x,b,cellStatus);
-        markIfExist(x-1,b,cellStatus);
-        markIfExist(x+1,b,cellStatus);
+        } while (b > -1 && b < cellStatus.length && cellStatus[x][b] == CellStatus.shot);
+        markIfExist(x, b, cellStatus);
+        markIfExist(x - 1, b, cellStatus);
+        markIfExist(x + 1, b, cellStatus);
     }
 
 
     private boolean wasItTheWholeShip(int x, int y, CellStatus[][] cellStatus) {
-        if (x + 1 < GameConstants.CELL_SIZE && cellStatus[x + 1][y]==CellStatus.filled) {
+        if (x + 1 < GameConstants.CELL_SIZE && cellStatus[x + 1][y] == CellStatus.filled) {
             return false;
         }
-        if (y + 1 < GameConstants.CELL_SIZE && cellStatus[x][y + 1]==CellStatus.filled) {
+        if (y + 1 < GameConstants.CELL_SIZE && cellStatus[x][y + 1] == CellStatus.filled) {
             return false;
         }
-        if (x - 1 >0 && cellStatus[x - 1][y]==CellStatus.filled) {
+        if (x - 1 > 0 && cellStatus[x - 1][y] == CellStatus.filled) {
             return false;
         }
-        if (y - 1 >0 && cellStatus[x][y - 1]==CellStatus.filled) {
+        if (y - 1 > 0 && cellStatus[x][y - 1] == CellStatus.filled) {
             return false;
         } else {
             return true;
@@ -227,7 +250,6 @@ public class GameServiceImpl implements GameService {
     public BaseGame abandon(Long id) {
         return null;
     }
-
 
 
 //    private CellStatus getMyBoard(Long id) {
