@@ -36,7 +36,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game joinGame(String playingCode) {
+    public Game joinGame(String playingCode) throws NoGameException{
         Optional<Game> gameOptional = gameRepository.findByPlayingCode(playingCode);
         if (gameOptional.isPresent()) {
             Authentication user2 = SecurityContextHolder.getContext().getAuthentication();
@@ -46,8 +46,7 @@ public class GameServiceImpl implements GameService {
             gameRepository.save(game);
             return game;
         } else {
-            //todo
-            return null;
+            throw new NoGameException();
         }
     }
 
@@ -64,7 +63,7 @@ public class GameServiceImpl implements GameService {
         } else if (user.getName().equals(game.getUser2().getUsername())) {
             game.setCellStatuses2(board);
         } else {
-            //todo
+            throw new IllegalArgumentException();
         }
         if (game.getCellStatuses1() != null && game.getCellStatuses2() != null) {
             game.setStatus(Status.running);
@@ -74,7 +73,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public MoveStatus move(Long id, int x, int y) {
+    public MoveStatus move(Long id, int x, int y) throws MoveExceptions{
         Game game = getGame(id);
         CellStatus[][] cellStatuses = null;
         MoveStatus moveStatus = MoveStatus.shot;
@@ -84,11 +83,11 @@ public class GameServiceImpl implements GameService {
         } else if (user.getName().equals(game.getUser2().getUsername())) {
             cellStatuses = game.getCellStatuses1();
         } else {
-            //todo
+            throw new IllegalArgumentException();
         }
         CellStatus status = cellStatuses[x][y];
         switch (status) {
-            case shot -> throw new RuntimeException(); //todo
+            case shot -> throw new MoveExceptions();
 
             case blank -> {
                 cellStatuses[x][y] = CellStatus.unavailable;
@@ -109,7 +108,7 @@ public class GameServiceImpl implements GameService {
                 }
             }
 
-            case unavailable -> throw new RuntimeException(); //todo
+            case unavailable -> throw new MoveExceptions();
 
         }
         game.setUpdatedate(new Date());
@@ -164,7 +163,7 @@ public class GameServiceImpl implements GameService {
             }
         }
         }
-        if(x+c<GameConstants.CELL_SIZE){
+        if(y+c<GameConstants.CELL_SIZE){
         while (board[x][y + c] == CellStatus.filled && !diagnal(x, y + c, board)) {
             returning += 1;
             board[x][y + c] = CellStatus.unavailable;

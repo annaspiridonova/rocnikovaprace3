@@ -5,8 +5,8 @@ import cz.gyarab3e.rocnikovaprace3.jpa.*;
 
 public interface GameService {
      Game startGameWithCode();
-     Game joinGame(String playingCode);
-     MoveStatus move(Long id, int x, int y);
+     Game joinGame(String playingCode) throws NoGameException;
+     MoveStatus move(Long id, int x, int y) throws MoveExceptions;
      BaseGame getBaseGame(int id);
      Game getGame(Long id);
      Game getCurrentGame();
