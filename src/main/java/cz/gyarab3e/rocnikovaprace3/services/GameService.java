@@ -13,4 +13,5 @@ public interface GameService {
      BaseGame abandon(Long id);
      void saveBoard(Long id,CellStatus[][] board) throws ValidationException;
 
+
 }

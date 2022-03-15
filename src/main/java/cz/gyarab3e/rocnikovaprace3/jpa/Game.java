@@ -1,9 +1,11 @@
 package cz.gyarab3e.rocnikovaprace3.jpa;
 
 import com.vladmihalcea.hibernate.type.array.EnumArrayType;
+import cz.gyarab3e.rocnikovaprace3.controller.MoveStatus;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -48,6 +50,33 @@ public class Game extends BaseGame{
     )
 
     private CellStatus[][] cellStatuses2;
+    private Integer lastX;
+    private Integer lastY;
+    private MoveStatus lastMoveStatus;
+
+    public Integer getLastX() {
+        return lastX;
+    }
+
+    public void setLastX(Integer lastX) {
+        this.lastX = lastX;
+    }
+
+    public Integer getLastY() {
+        return lastY;
+    }
+
+    public void setLastY(Integer lastY) {
+        this.lastY = lastY;
+    }
+
+    public MoveStatus getLastMoveStatus() {
+        return lastMoveStatus;
+    }
+
+    public void setLastMoveStatus(MoveStatus lastMoveStatus) {
+        this.lastMoveStatus = lastMoveStatus;
+    }
 
     public Date getUpdatedate() {
         return updatedate;
@@ -89,5 +118,17 @@ public class Game extends BaseGame{
     public void setCellStatuses2(CellStatus[][] cellStatuses2) {
         this.cellStatuses2 = cellStatuses2;
     }
+
+    public GameUser getUserByName(String name){
+        if(user1.getUsername().equals(name)){
+            return user1;
+        }
+        else if(user2.getUsername().equals(name)){
+            return user2;
+        }else{
+            return null;
+        }
+    }
+
 }
 

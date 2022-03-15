@@ -4,14 +4,19 @@ package cz.gyarab3e.rocnikovaprace3.services;
 import cz.gyarab3e.rocnikovaprace3.controller.MoveStatus;
 import cz.gyarab3e.rocnikovaprace3.jpa.*;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @Transactional
@@ -50,6 +55,7 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+
     @Override
     public void saveBoard(Long id, CellStatus[][] board) throws ValidationException{
         boolean validBoard = boardValidaton(board);
@@ -67,6 +73,15 @@ public class GameServiceImpl implements GameService {
         }
         if (game.getCellStatuses1() != null && game.getCellStatuses2() != null) {
             game.setStatus(Status.running);
+            Random random = new Random();
+            boolean res=   random.nextBoolean();
+
+            if(res){
+                game.setPlayingUser(game.getUser1());
+            }else{
+                game.setPlayingUser(game.getUser2());
+            }
+
         }
         gameRepository.save(game);
 
@@ -75,9 +90,15 @@ public class GameServiceImpl implements GameService {
     @Override
     public MoveStatus move(Long id, int x, int y) throws MoveExceptions{
         Game game = getGame(id);
+        if(game.getStatus()!=Status.running){
+            throw new MoveExceptions(); //todo
+        }
         CellStatus[][] cellStatuses = null;
         MoveStatus moveStatus = MoveStatus.shot;
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
+        if(!user.getName().equals(game.getPlayingUser().getUsername())){
+            throw new MoveExceptions(); //todo
+        }
         if (user.getName().equals(game.getUser1().getUsername())) {
             cellStatuses = game.getCellStatuses2();
         } else if (user.getName().equals(game.getUser2().getUsername())) {
@@ -101,6 +122,8 @@ public class GameServiceImpl implements GameService {
                         moveStatus = MoveStatus.wholeShip;
                     } else {
                         moveStatus = MoveStatus.won;
+                        game.setStatus(Status.ended);
+                        game.setWinner(game.getUserByName(user.getName()));
                     }
                 } else {
                     cellStatuses[x][y] = CellStatus.shot;
@@ -111,16 +134,19 @@ public class GameServiceImpl implements GameService {
             case unavailable -> throw new MoveExceptions();
 
         }
+        if(game.getPlayingUser().getUsername().equals(game.getUser1().getUsername())){
+            game.setPlayingUser(game.getUser2());
+        }else{
+            game.setPlayingUser(game.getUser1());
+        }
         game.setUpdatedate(new Date());
+        game.setLastMoveStatus(moveStatus);
+        game.setLastX(x);
+        game.setLastY(y);
         gameRepository.save(game);
         return moveStatus;
-
     }
 
-    //    private boolean BoardValidation(CellStatus[][] cellStatuses){
-//
-//
-//    }
     private boolean anyShipsLeft(CellStatus[][] cellStatuses) {
         for (int row = 0; row < cellStatuses.length; row++) {
             for (int col = 0; col < cellStatuses[row].length; col++) {
@@ -361,6 +387,14 @@ public class GameServiceImpl implements GameService {
     @Override
     public BaseGame abandon(Long id) {
         return null;
+    }
+
+    @Async
+    @Scheduled(fixedRate = 300_000)
+    public void abandon(){
+        LocalDateTime now=LocalDateTime.now();
+        LocalDateTime compare=now.minusSeconds(GameConstants.ABANDON_TIME);
+        gameRepository.abandonGames(java.sql.Date.valueOf(compare.toLocalDate()),Status.running,Status.abandoned);
     }
 
 

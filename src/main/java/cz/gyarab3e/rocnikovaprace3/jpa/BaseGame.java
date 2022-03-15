@@ -7,11 +7,20 @@ public class BaseGame {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Id
     private Long id;
+    @ManyToOne
+    private GameUser playingUser;
     private String playingCode;
     private Status status;
     @ManyToOne
     private GameUser winner;
 
+    public GameUser getPlayingUser() {
+        return playingUser;
+    }
+
+    public void setPlayingUser(GameUser playingUser) {
+        this.playingUser = playingUser;
+    }
 
     public Long getId() {
         return id;

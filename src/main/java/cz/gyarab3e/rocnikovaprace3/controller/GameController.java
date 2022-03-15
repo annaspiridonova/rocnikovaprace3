@@ -21,7 +21,7 @@ public class GameController {
     @PostMapping("/start")
     public ResponseEntity<GameHolder> startGame(){
         Game game = gameService.startGameWithCode();
-        return ResponseEntity.ok(new GameHolder(game.getId(),game.getPlayingCode(),game.getStatus()));
+        return ResponseEntity.ok(new GameHolder(game.getId(),game.getPlayingCode(),game.getStatus(),null));
     }
     @PostMapping("/join")
     public ResponseEntity<GameHolder> joinGame(@RequestBody String code){
@@ -32,7 +32,7 @@ public class GameController {
             e.printStackTrace();
             return new ResponseEntity<>( HttpStatus.NOT_FOUND );
         }
-        return ResponseEntity.ok(new GameHolder(game.getId(),game.getPlayingCode(),game.getStatus()));
+        return ResponseEntity.ok(new GameHolder(game.getId(),game.getPlayingCode(),game.getStatus(),game.getPlayingUser().getUsername()));
     }
     @GetMapping(value="/{id}")
     public ResponseEntity<GameHolder> getGame(@PathVariable Long id){
