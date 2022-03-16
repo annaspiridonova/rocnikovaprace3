@@ -1,13 +1,12 @@
 package cz.gyarab3e.rocnikovaprace3.controller;
 
 import cz.gyarab3e.rocnikovaprace3.jpa.Game;
-import cz.gyarab3e.rocnikovaprace3.jpa.GameUser;
 import cz.gyarab3e.rocnikovaprace3.jpa.Status;
 
 public class GameHolder {
     private Long id;
     private String code;
-    private Status satus;
+    private Status status;
     private String currentPlayer;
     private Integer lastX;
     private Integer lastY;
@@ -45,12 +44,12 @@ public class GameHolder {
         this.lastMoveStatus = lastMoveStatus;
     }
 
-    public Status getSatus() {
-        return satus;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setSatus(Status satus) {
-        this.satus = satus;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public Long getId() {
@@ -72,17 +71,17 @@ public class GameHolder {
     public GameHolder(Game game){
         id =game.getId();
         code= game.getPlayingCode();
-        satus=game.getStatus();
+        status =game.getStatus();
         if(game.getPlayingUser()!=null){
         currentPlayer=game.getPlayingUser().getUsername();}
         lastX= game.getLastX();
         lastY= game.getLastY();
         lastMoveStatus=game.getLastMoveStatus();
     }
-    public GameHolder(Long id, String code, Status satus,String currentPlayer) {
+    public GameHolder(Long id, String code, Status status,String currentPlayer) {
         this.id = id;
         this.code = code;
-        this.satus = satus;
+        this.status = status;
         this.currentPlayer = currentPlayer;
     }
 
