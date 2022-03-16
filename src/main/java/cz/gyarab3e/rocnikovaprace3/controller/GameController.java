@@ -23,10 +23,10 @@ public class GameController {
         return ResponseEntity.ok(new GameHolder(game.getId(),game.getPlayingCode(),game.getStatus(),null));
     }
     @PostMapping("/join")
-    public ResponseEntity<GameHolder> joinGame(@RequestBody String code){
+    public ResponseEntity<GameHolder> joinGame(@RequestBody CodeHolder code){
         Game game;
         try {
-            game = gameService.joinGame(code);
+            game = gameService.joinGame(code.getCode());
         } catch (NoGameException e) {
             e.printStackTrace();
             return new ResponseEntity<>( HttpStatus.NOT_FOUND );
