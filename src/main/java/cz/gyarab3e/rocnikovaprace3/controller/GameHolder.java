@@ -73,7 +73,8 @@ public class GameHolder {
         id =game.getId();
         code= game.getPlayingCode();
         satus=game.getStatus();
-        currentPlayer=game.getPlayingUser().getUsername();
+        if(game.getPlayingUser()!=null){
+        currentPlayer=game.getPlayingUser().getUsername();}
         lastX= game.getLastX();
         lastY= game.getLastY();
         lastMoveStatus=game.getLastMoveStatus();
