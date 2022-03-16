@@ -20,6 +20,7 @@ import java.util.Date;
 
 import static cz.gyarab3e.rocnikovaprace3.controller.SecurityConstants.*;
 @RestController
+@CrossOrigin
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
