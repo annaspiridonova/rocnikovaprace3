@@ -1,10 +1,9 @@
 package cz.gyarab3e.rocnikovaprace3.controller;
 
+import cz.gyarab3e.rocnikovaprace3.jpa.CellStatus;
 import cz.gyarab3e.rocnikovaprace3.jpa.Game;
-import cz.gyarab3e.rocnikovaprace3.services.GameService;
-import cz.gyarab3e.rocnikovaprace3.services.MoveExceptions;
-import cz.gyarab3e.rocnikovaprace3.services.NoGameException;
-import cz.gyarab3e.rocnikovaprace3.services.ValidationException;
+import cz.gyarab3e.rocnikovaprace3.services.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,18 +24,28 @@ public class GameController {
     }
     @PostMapping("/join")
     public ResponseEntity<GameHolder> joinGame(@RequestBody String code){
-        Game game= null;
+        Game game;
         try {
             game = gameService.joinGame(code);
         } catch (NoGameException e) {
             e.printStackTrace();
             return new ResponseEntity<>( HttpStatus.NOT_FOUND );
         }
-        return ResponseEntity.ok(new GameHolder(game.getId(),game.getPlayingCode(),game.getStatus(),game.getPlayingUser().getUsername()));
+        return ResponseEntity.ok(new GameHolder(game.getId(),game.getPlayingCode(),game.getStatus(),null));
     }
     @GetMapping(value="/{id}")
     public ResponseEntity<GameHolder> getGame(@PathVariable Long id){
         return ResponseEntity.ok(new GameHolder(gameService.getGame(id)));
+    }
+
+    @GetMapping(value="/getUsersBoard")
+    public ResponseEntity<BoardHolder> getUsersBoard(@Param("id") Long id,@Param("username") String username){
+        return ResponseEntity.ok(new BoardHolder(id,gameService.returnUsersBoard(id,username)));
+    }
+
+    @GetMapping(value="/getOpponentsBoard")
+    public ResponseEntity<BoardHolder> getOpponentsBoard(@Param("id") Long id,@Param("username") String username){
+        return ResponseEntity.ok(new BoardHolder(id,gameService.returnOpponentsBoard(id,username)));
     }
 
 
@@ -65,5 +74,6 @@ public class GameController {
         }
 
     }
+
 
 }

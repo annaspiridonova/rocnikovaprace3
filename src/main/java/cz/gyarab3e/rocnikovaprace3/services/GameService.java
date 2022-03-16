@@ -1,5 +1,6 @@
 package cz.gyarab3e.rocnikovaprace3.services;
 
+import cz.gyarab3e.rocnikovaprace3.controller.BoardHolder;
 import cz.gyarab3e.rocnikovaprace3.controller.MoveStatus;
 import cz.gyarab3e.rocnikovaprace3.jpa.*;
 
@@ -12,6 +13,8 @@ public interface GameService {
      Game getCurrentGame();
      BaseGame abandon(Long id);
      void saveBoard(Long id,CellStatus[][] board) throws ValidationException;
+     CellStatus[][] returnUsersBoard(Long id, String username);
+     CellStatus[][] returnOpponentsBoard(Long id,String username);
 
 
 }
