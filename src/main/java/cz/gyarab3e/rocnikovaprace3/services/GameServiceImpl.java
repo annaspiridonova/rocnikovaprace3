@@ -170,6 +170,7 @@ public class GameServiceImpl implements GameService {
         int c = 1;
         int d = 1;
         if (x - a >=0){
+            try{
         while (board[x - a][y] == CellStatus.filled && !diagnal(x - a, y, board)) {
             returning += 1;
             board[x - a][y] = CellStatus.unavailable;
@@ -177,9 +178,12 @@ public class GameServiceImpl implements GameService {
             if(returning>a){
                 returning -= 1000;
             }
+        }}catch(ArrayIndexOutOfBoundsException e){
+
         }
         }
         if(x+b<GameConstants.CELL_SIZE){
+            try{
         while (board[x + b][y] == CellStatus.filled && !diagnal(x + b, y, board)) {
             returning += 1;
             board[x + b][y] = CellStatus.unavailable;
@@ -188,8 +192,12 @@ public class GameServiceImpl implements GameService {
                 returning -= 1000;
             }
         }
+            }catch(ArrayIndexOutOfBoundsException e){
+
+            }
         }
         if(y+c<GameConstants.CELL_SIZE){
+            try{
         while (board[x][y + c] == CellStatus.filled && !diagnal(x, y + c, board)) {
             returning += 1;
             board[x][y + c] = CellStatus.unavailable;
@@ -197,9 +205,12 @@ public class GameServiceImpl implements GameService {
             if(returning>c){
                 returning -= 1000;
             }
-        }
+        }}catch(ArrayIndexOutOfBoundsException e){
+
+            }
         }
         if(y-d>=0){
+            try{
         while (board[x][y - d] == CellStatus.filled && !diagnal(x, y - d, board)) {
             returning += 1;
             board[x][y - d] = CellStatus.unavailable;
@@ -207,7 +218,9 @@ public class GameServiceImpl implements GameService {
             if(returning>d){
                 returning -= 1000;
             }
-        }
+        }}catch(ArrayIndexOutOfBoundsException e){
+
+            }
         }
         return returning;
     }
@@ -356,10 +369,10 @@ public class GameServiceImpl implements GameService {
         if (y + 1 < GameConstants.CELL_SIZE && cellStatus[x][y + 1] == CellStatus.filled) {
             return false;
         }
-        if (x - 1 > 0 && cellStatus[x - 1][y] == CellStatus.filled) {
+        if (x - 1 >= 0 && cellStatus[x - 1][y] == CellStatus.filled) {
             return false;
         }
-        if (y - 1 > 0 && cellStatus[x][y - 1] == CellStatus.filled) {
+        if (y - 1 >= 0 && cellStatus[x][y - 1] == CellStatus.filled) {
             return false;
         } else {
             return true;

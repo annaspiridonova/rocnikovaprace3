@@ -70,7 +70,7 @@ public class GameController {
             return new ResponseEntity<>( HttpStatus.BAD_REQUEST );
         } catch (MoveExceptions e) {
             e.printStackTrace();
-            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR );
+            return new ResponseEntity<>( HttpStatus.NOT_FOUND );
         }
 
     }
