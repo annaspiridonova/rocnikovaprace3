@@ -19,6 +19,7 @@ import org.springframework.web.servlet.function.ServerRequest;
 import java.util.Date;
 
 import static cz.gyarab3e.rocnikovaprace3.controller.SecurityConstants.*;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/users")
@@ -27,30 +28,35 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    public UserController(UserService userService,PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
     }
 
     @PostMapping("/signUp")
-    public void signUp(@RequestBody UserHolder holder){
+    public ResponseEntity<Void> signUp(@RequestBody UserHolder holder) {
         GameUser user = new GameUser();
         user.setUsername(holder.getUsername());
         String password = holder.getPassword();
         String encodedPassword = passwordEncoder.encode(password);
         user.setPassword(encodedPassword);
-        userService.signUp(user);
+        try {
+            userService.signUp(user);
+        }catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }return new ResponseEntity<>(HttpStatus.OK);
     }
+
     @PostMapping("/updateUser")
-    public void updateUser(@RequestBody UserHolder holder){
+    public void updateUser(@RequestBody UserHolder holder) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
     }
 
     @PostMapping("/signIn")
     @ResponseBody
-    public ResponseEntity<String> signIn(@RequestBody UserHolder holder){
+    public ResponseEntity<String> signIn(@RequestBody UserHolder holder) {
         try {
 
             Authentication authenticate = authenticationManager

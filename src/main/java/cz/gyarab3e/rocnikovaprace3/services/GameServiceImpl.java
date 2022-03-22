@@ -40,13 +40,17 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game joinGame(String playingCode) throws NoGameException {
+    public Game joinGame(String playingCode) throws NoGameException, ValidationException {
         Optional<Game> gameOptional = gameRepository.findByPlayingCode(playingCode);
         if (gameOptional.isPresent()) {
             Authentication user2 = SecurityContextHolder.getContext().getAuthentication();
             Game game = gameOptional.get();
+
             game.setStatus(Status.waitingForBoards);
             game.setUser2((GameUser) user2.getPrincipal());
+            if(game.getUser1().getUsername().equals(game.getUser2().getUsername())){
+                throw new ValidationException();
+            }
             gameRepository.save(game);
             return game;
         } else {
@@ -56,17 +60,29 @@ public class GameServiceImpl implements GameService {
 
 
     @Override
-    public void saveBoard(Long id, CellStatus[][] board) throws ValidationException {
+    public void saveBoard(Long id, CellStatus[][] board) throws ValidationException, NoGameException {
         boolean validBoard = boardValidaton(board);
         if (!validBoard) {
             throw new ValidationException();
         }
-        Game game = getGame(id);
+        Optional<Game> optionalGame = getGame(id);
+        if(optionalGame.isEmpty()){
+            throw new NoGameException();
+        }
+        Game game=optionalGame.get();
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (user.getName().equals(game.getUser1().getUsername())) {
-            game.setCellStatuses1(board);
+            if (game.getCellStatuses1() == null) {
+                game.setCellStatuses1(board);
+            }else{
+                throw new ValidationException();
+            }
         } else if (user.getName().equals(game.getUser2().getUsername())) {
-            game.setCellStatuses2(board);
+            if (game.getCellStatuses2() == null) {
+                game.setCellStatuses2(board);
+            }else{
+                throw new ValidationException();
+            }
         } else {
             throw new IllegalArgumentException();
         }
@@ -88,8 +104,12 @@ public class GameServiceImpl implements GameService {
 
 
     @Override
-    public MoveStatus move(Long id, int x, int y) throws MoveExceptions {
-        Game game = getGame(id);
+    public MoveStatus move(Long id, int x, int y) throws MoveExceptions, NoGameException {
+        Optional<Game> optionalGame = getGame(id);
+        if(optionalGame.isEmpty()){
+            throw new NoGameException();
+        }
+        Game game=optionalGame.get();
         if (game.getStatus() != Status.running) {
             throw new MoveExceptions(); //todo
         }
@@ -371,25 +391,25 @@ public class GameServiceImpl implements GameService {
         int c = y;
         int d = y;
         while (a + 1 < GameConstants.CELL_SIZE && (cellStatus[a + 1][y] == CellStatus.shot || cellStatus[a + 1][y] == CellStatus.filled)) {
-            if ( cellStatus[a + 1][y] == CellStatus.filled) {
+            if (cellStatus[a + 1][y] == CellStatus.filled) {
                 return false;
             }
             a++;
         }
         while (c + 1 < GameConstants.CELL_SIZE && (cellStatus[x][c + 1] == CellStatus.shot || cellStatus[x][c + 1] == CellStatus.filled)) {
-            if ( cellStatus[x][c + 1] == CellStatus.filled) {
+            if (cellStatus[x][c + 1] == CellStatus.filled) {
                 return false;
             }
             c++;
         }
         if (b - 1 >= 0 && (cellStatus[b - 1][y] == CellStatus.filled || cellStatus[b - 1][y] == CellStatus.shot)) {
-            if ( cellStatus[b - 1][y] == CellStatus.filled) {
+            if (cellStatus[b - 1][y] == CellStatus.filled) {
                 return false;
             }
             b--;
         }
-        if (d - 1 >= 0 && (cellStatus[x][d - 1] == CellStatus.filled || cellStatus[x][d - 1] == CellStatus.shot) ){
-            if ( cellStatus[x][d - 1] == CellStatus.filled) {
+        if (d - 1 >= 0 && (cellStatus[x][d - 1] == CellStatus.filled || cellStatus[x][d - 1] == CellStatus.shot)) {
+            if (cellStatus[x][d - 1] == CellStatus.filled) {
                 return false;
             }
             d--;
@@ -405,9 +425,8 @@ public class GameServiceImpl implements GameService {
 
 
     @Override
-    public Game getGame(Long id) {
-        Optional<Game> game = gameRepository.findById(id);
-        return game.orElse(null);
+    public Optional<Game> getGame(Long id) {
+        return gameRepository.findById(id);
     }
 
     @Override
@@ -429,8 +448,12 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public CellStatus[][] returnUsersBoard(Long id, String username) {
-        Game game = getGame(id);
+    public CellStatus[][] returnUsersBoard(Long id, String username) throws NoGameException {
+        Optional<Game> optionalGame = getGame(id);
+        if(optionalGame.isEmpty()){
+            throw new NoGameException();
+        }
+        Game game=optionalGame.get();
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (!user.getName().equals(username)) {
             throw new IllegalArgumentException();//todo
@@ -457,8 +480,12 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public CellStatus[][] returnOpponentsBoard(Long id, String username) {
-        Game game = getGame(id);
+    public CellStatus[][] returnOpponentsBoard(Long id, String username) throws NoGameException {
+        Optional<Game> optionalGame = getGame(id);
+        if(optionalGame.isEmpty()){
+            throw new NoGameException();
+        }
+        Game game=optionalGame.get();
         if (username.equals(game.getUser1().getUsername())) {
             return unknownBoard(game.getCellStatuses1());
         } else if (username.equals(game.getUser2().getUsername())) {

@@ -19,7 +19,11 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void signUp(GameUser user) {
+        if(userRepository.findById(user.getUsername()).isPresent()){
+            throw new IllegalArgumentException();
+        }
         userRepository.save(user);
+
     }
 
     @Override
