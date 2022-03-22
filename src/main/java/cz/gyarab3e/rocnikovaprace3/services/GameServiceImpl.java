@@ -24,7 +24,6 @@ public class GameServiceImpl implements GameService {
     private final GameRepository gameRepository;
 
 
-
     public GameServiceImpl(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
     }
@@ -41,7 +40,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game joinGame(String playingCode) throws NoGameException{
+    public Game joinGame(String playingCode) throws NoGameException {
         Optional<Game> gameOptional = gameRepository.findByPlayingCode(playingCode);
         if (gameOptional.isPresent()) {
             Authentication user2 = SecurityContextHolder.getContext().getAuthentication();
@@ -57,9 +56,9 @@ public class GameServiceImpl implements GameService {
 
 
     @Override
-    public void saveBoard(Long id, CellStatus[][] board) throws ValidationException{
+    public void saveBoard(Long id, CellStatus[][] board) throws ValidationException {
         boolean validBoard = boardValidaton(board);
-        if(!validBoard){
+        if (!validBoard) {
             throw new ValidationException();
         }
         Game game = getGame(id);
@@ -74,11 +73,11 @@ public class GameServiceImpl implements GameService {
         if (game.getCellStatuses1() != null && game.getCellStatuses2() != null) {
             game.setStatus(Status.running);
             Random random = new Random();
-            boolean res=   random.nextBoolean();
+            boolean res = random.nextBoolean();
 
-            if(res){
+            if (res) {
                 game.setPlayingUser(game.getUser1());
-            }else{
+            } else {
                 game.setPlayingUser(game.getUser2());
             }
 
@@ -89,15 +88,15 @@ public class GameServiceImpl implements GameService {
 
 
     @Override
-    public MoveStatus move(Long id, int x, int y) throws MoveExceptions{
+    public MoveStatus move(Long id, int x, int y) throws MoveExceptions {
         Game game = getGame(id);
-        if(game.getStatus()!=Status.running){
+        if (game.getStatus() != Status.running) {
             throw new MoveExceptions(); //todo
         }
         CellStatus[][] cellStatuses;
         MoveStatus moveStatus = MoveStatus.shot;
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
-        if(!user.getName().equals(game.getPlayingUser().getUsername())){
+        if (!user.getName().equals(game.getPlayingUser().getUsername())) {
             throw new MoveExceptions(); //todo
         }
         if (user.getName().equals(game.getUser1().getUsername())) {
@@ -134,9 +133,9 @@ public class GameServiceImpl implements GameService {
             case unavailable -> throw new MoveExceptions();
 
         }
-        if(game.getPlayingUser().getUsername().equals(game.getUser1().getUsername())){
+        if (game.getPlayingUser().getUsername().equals(game.getUser1().getUsername())) {
             game.setPlayingUser(game.getUser2());
-        }else{
+        } else {
             game.setPlayingUser(game.getUser1());
         }
         game.setUpdatedate(new Date());
@@ -157,6 +156,7 @@ public class GameServiceImpl implements GameService {
         }
         return false;
     }
+
     private void markIfExist(int x, int y, CellStatus[][] cellStatus) {
         if (x > 0 && x < GameConstants.CELL_SIZE && y > 0 && y < GameConstants.CELL_SIZE && cellStatus[x][y] != CellStatus.shot) {
             cellStatus[x][y] = CellStatus.unavailable;
@@ -169,56 +169,59 @@ public class GameServiceImpl implements GameService {
         int b = 1;
         int c = 1;
         int d = 1;
-        if (x - a >=0){
-            try{
-        while (board[x - a][y] == CellStatus.filled && !diagnal(x - a, y, board)) {
-            returning += 1;
-            board[x - a][y] = CellStatus.unavailable;
-            a--;
-            if(returning>a){
-                returning -= 1000;
-            }
-        }}catch(ArrayIndexOutOfBoundsException e){
-
-        }
-        }
-        if(x+b<GameConstants.CELL_SIZE){
-            try{
-        while (board[x + b][y] == CellStatus.filled && !diagnal(x + b, y, board)) {
-            returning += 1;
-            board[x + b][y] = CellStatus.unavailable;
-            b++;
-            if(returning>b){
-                returning -= 1000;
-            }
-        }
-            }catch(ArrayIndexOutOfBoundsException e){
+        if (x - a >= 0) {
+            try {
+                while (board[x - a][y] == CellStatus.filled && !diagnal(x - a, y, board)) {
+                    returning += 1;
+                    board[x - a][y] = CellStatus.unavailable;
+                    a--;
+                    if (returning > a) {
+                        returning -= 1000;
+                    }
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
 
             }
         }
-        if(y+c<GameConstants.CELL_SIZE){
-            try{
-        while (board[x][y + c] == CellStatus.filled && !diagnal(x, y + c, board)) {
-            returning += 1;
-            board[x][y + c] = CellStatus.unavailable;
-            c++;
-            if(returning>c){
-                returning -= 1000;
-            }
-        }}catch(ArrayIndexOutOfBoundsException e){
+        if (x + b < GameConstants.CELL_SIZE) {
+            try {
+                while (board[x + b][y] == CellStatus.filled && !diagnal(x + b, y, board)) {
+                    returning += 1;
+                    board[x + b][y] = CellStatus.unavailable;
+                    b++;
+                    if (returning > b) {
+                        returning -= 1000;
+                    }
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
 
             }
         }
-        if(y-d>=0){
-            try{
-        while (board[x][y - d] == CellStatus.filled && !diagnal(x, y - d, board)) {
-            returning += 1;
-            board[x][y - d] = CellStatus.unavailable;
-            d--;
-            if(returning>d){
-                returning -= 1000;
+        if (y + c < GameConstants.CELL_SIZE) {
+            try {
+                while (board[x][y + c] == CellStatus.filled && !diagnal(x, y + c, board)) {
+                    returning += 1;
+                    board[x][y + c] = CellStatus.unavailable;
+                    c++;
+                    if (returning > c) {
+                        returning -= 1000;
+                    }
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+
             }
-        }}catch(ArrayIndexOutOfBoundsException e){
+        }
+        if (y - d >= 0) {
+            try {
+                while (board[x][y - d] == CellStatus.filled && !diagnal(x, y - d, board)) {
+                    returning += 1;
+                    board[x][y - d] = CellStatus.unavailable;
+                    d--;
+                    if (returning > d) {
+                        returning -= 1000;
+                    }
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
 
             }
         }
@@ -226,7 +229,7 @@ public class GameServiceImpl implements GameService {
     }
 
     private boolean diagnal(int x, int y, CellStatus[][] board) {
-        if (x - 1 >= 0 && y  -1>=0) {
+        if (x - 1 >= 0 && y - 1 >= 0) {
             if (board[x - 1][y - 1] == CellStatus.filled) {
                 return true;
             }
@@ -241,7 +244,7 @@ public class GameServiceImpl implements GameService {
                 return true;
             }
         }
-        if (x + 1 < GameConstants.CELL_SIZE && y - 1 >=  0) {
+        if (x + 1 < GameConstants.CELL_SIZE && y - 1 >= 0) {
 
             if (board[x + 1][y - 1] == CellStatus.filled) {
                 return true;
@@ -252,7 +255,7 @@ public class GameServiceImpl implements GameService {
 
     public boolean boardValidaton(CellStatus[][] oriBoard) {
         boolean oneChecked = false, twoChecked = false, threeChecked = false, fourChecked = false, fiveChecked = false;
-        int filledCells=0;
+        int filledCells = 0;
         CellStatus[][] board = Arrays.stream(oriBoard)
                 .map(a -> Arrays.copyOf(a, oriBoard.length + 1))
                 .toArray(CellStatus[][]::new);
@@ -276,10 +279,10 @@ public class GameServiceImpl implements GameService {
                             return false;
                         }
                     }
-                    if (hmitr== 2) {
+                    if (hmitr == 2) {
                         if (!twoChecked) {
                             twoChecked = true;
-                            filledCells+=1;
+                            filledCells += 1;
                         } else {
                             return false;
                         }
@@ -287,7 +290,7 @@ public class GameServiceImpl implements GameService {
                     if (hmitr == 3) {
                         if (!threeChecked) {
                             threeChecked = true;
-                            filledCells+=2;
+                            filledCells += 2;
                         } else {
                             return false;
                         }
@@ -295,7 +298,7 @@ public class GameServiceImpl implements GameService {
                     if (hmitr == 4) {
                         if (!fourChecked) {
                             fourChecked = true;
-                            filledCells+=3;
+                            filledCells += 3;
                         } else {
                             return false;
                         }
@@ -303,7 +306,7 @@ public class GameServiceImpl implements GameService {
                     if (hmitr == 5) {
                         if (!fiveChecked) {
                             fiveChecked = true;
-                            filledCells+=4;
+                            filledCells += 4;
                         } else {
                             return false;
                         }
@@ -363,20 +366,35 @@ public class GameServiceImpl implements GameService {
 
 
     private boolean wasItTheWholeShip(int x, int y, CellStatus[][] cellStatus) {
-        if (x + 1 < GameConstants.CELL_SIZE && cellStatus[x + 1][y] == CellStatus.filled) {
-            return false;
+        int a = x;
+        int b = x;
+        int c = y;
+        int d = y;
+        while (a + 1 < GameConstants.CELL_SIZE && (cellStatus[a + 1][y] == CellStatus.shot || cellStatus[a + 1][y] == CellStatus.filled)) {
+            if ( cellStatus[a + 1][y] == CellStatus.filled) {
+                return false;
+            }
+            a++;
         }
-        if (y + 1 < GameConstants.CELL_SIZE && cellStatus[x][y + 1] == CellStatus.filled) {
-            return false;
+        while (c + 1 < GameConstants.CELL_SIZE && (cellStatus[x][c + 1] == CellStatus.shot || cellStatus[x][c + 1] == CellStatus.filled)) {
+            if ( cellStatus[x][c + 1] == CellStatus.filled) {
+                return false;
+            }
+            c++;
         }
-        if (x - 1 >= 0 && cellStatus[x - 1][y] == CellStatus.filled) {
-            return false;
+        if (b - 1 >= 0 && (cellStatus[b - 1][y] == CellStatus.filled || cellStatus[b - 1][y] == CellStatus.shot)) {
+            if ( cellStatus[b - 1][y] == CellStatus.filled) {
+                return false;
+            }
+            b--;
         }
-        if (y - 1 >= 0 && cellStatus[x][y - 1] == CellStatus.filled) {
-            return false;
-        } else {
-            return true;
+        if (d - 1 >= 0 && (cellStatus[x][d - 1] == CellStatus.filled || cellStatus[x][d - 1] == CellStatus.shot) ){
+            if ( cellStatus[x][d - 1] == CellStatus.filled) {
+                return false;
+            }
+            d--;
         }
+        return true;
     }
 
 
@@ -404,17 +422,17 @@ public class GameServiceImpl implements GameService {
 
     @Async
     @Scheduled(fixedRate = 300_000)
-    public void abandon(){
-        LocalDateTime now=LocalDateTime.now();
-        LocalDateTime compare=now.minusSeconds(GameConstants.ABANDON_TIME);
-        gameRepository.abandonGames(java.sql.Date.valueOf(compare.toLocalDate()),Status.running,Status.abandoned);
+    public void abandon() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime compare = now.minusSeconds(GameConstants.ABANDON_TIME);
+        gameRepository.abandonGames(java.sql.Date.valueOf(compare.toLocalDate()), Status.running, Status.abandoned);
     }
 
     @Override
     public CellStatus[][] returnUsersBoard(Long id, String username) {
         Game game = getGame(id);
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
-        if(!user.getName().equals(username)){
+        if (!user.getName().equals(username)) {
             throw new IllegalArgumentException();//todo
         }
         if (username.equals(game.getUser1().getUsername())) {
@@ -425,17 +443,18 @@ public class GameServiceImpl implements GameService {
             throw new IllegalArgumentException();
         }
     }
-    public CellStatus[][] unknownBoard(CellStatus[][] board){
+
+    public CellStatus[][] unknownBoard(CellStatus[][] board) {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 CellStatus status = board[i][j];
-                switch (status){
+                switch (status) {
                     case filled -> board[i][j] = CellStatus.blank;
                 }
             }
         }
         return board;
-        }
+    }
 
     @Override
     public CellStatus[][] returnOpponentsBoard(Long id, String username) {
