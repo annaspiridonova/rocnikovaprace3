@@ -88,7 +88,7 @@ public class GameController {
         }
         return new ResponseEntity<>( HttpStatus.OK );
     }
-//make them private
+
     @PostMapping("/getMove")
     public ResponseEntity<MoveStatus> move(@RequestBody MoveHolder moveHolder){
         try{
@@ -101,6 +101,19 @@ public class GameController {
         }
 
     }
+    @GetMapping("/abandon")
+    public ResponseEntity<Void> abandon(@Param("id") Long id){
+        try {
+            gameService.abandon(id);
+        } catch (NoGameException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>( HttpStatus.NOT_FOUND );
+        } catch (AccessDeniedExceptions e) {
+            e.printStackTrace();
+            return new ResponseEntity<>( HttpStatus.UNAUTHORIZED );
 
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 }

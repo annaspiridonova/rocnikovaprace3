@@ -435,10 +435,37 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public BaseGame abandon(Long id) {
-        return null;
-    }
+    public BaseGame abandon(Long id) throws NoGameException, AccessDeniedExceptions {
+        Optional<Game> optionalGame = getGame(id);
+        Authentication user = SecurityContextHolder.getContext().getAuthentication();
+        if(optionalGame.isEmpty()){
+            throw new NoGameException();
+        }
 
+        Game game=optionalGame.get();
+
+        if(!user.getName().equals(game.getUser1().getUsername())&&!user.getName().equals(game.getUser2().getUsername())){
+            throw new AccessDeniedExceptions();
+        }
+        Status status=game.getStatus();
+        if(status==Status.waiting){
+            gameRepository.deleteById(id);
+            return game;
+        }
+        if(status==Status.running||status==Status.waitingForBoards){
+            if (user.getName().equals(game.getUser1().getUsername())) {
+                game.setWinner(game.getUser2());
+            } else if (user.getName().equals(game.getUser2().getUsername())) {
+                game.setWinner(game.getUser1());
+            }
+        }
+        game.setStatus(Status.abandoned);
+        gameRepository.save(game);
+        return game;
+    }
+    private void updateWinningrae(String username){
+
+    }
     @Async
     @Scheduled(fixedRate = 300_000)
     public void abandon() {

@@ -13,10 +13,11 @@ public interface GameService {
      BaseGame getBaseGame(int id);
      Optional<Game> getGame(Long id);
      Game getCurrentGame();
-     BaseGame abandon(Long id);
+     BaseGame abandon(Long id) throws NoGameException, AccessDeniedExceptions;
      void saveBoard(Long id,CellStatus[][] board) throws ValidationException, NoGameException;
      CellStatus[][] returnUsersBoard(Long id, String username) throws NoGameException;
      CellStatus[][] returnOpponentsBoard(Long id,String username) throws NoGameException;
+
 
 
 }
