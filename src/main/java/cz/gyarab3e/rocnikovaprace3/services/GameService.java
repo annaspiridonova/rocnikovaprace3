@@ -17,7 +17,7 @@ public interface GameService {
      void saveBoard(Long id,CellStatus[][] board) throws ValidationException, NoGameException;
      CellStatus[][] returnUsersBoard(Long id, String username) throws NoGameException;
      CellStatus[][] returnOpponentsBoard(Long id,String username) throws NoGameException;
-
+     int getWinningRate(String username);
 
 
 }

@@ -12,7 +12,7 @@ public class GameUser implements UserDetails {
     @Id
     private String username;
     private String password;
-    private int winningRate;
+//    private int winningRate;
 
     public String getUsername() {
         return username;
@@ -54,12 +54,12 @@ public class GameUser implements UserDetails {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    public int getWinningRate() {
-        return winningRate;
-    }
-
-    public void setWinningRate(int winningRate) {
-        this.winningRate = winningRate;
-    }
+//
+//    public int getWinningRate() {
+//        return winningRate;
+//    }
+//
+//    public void setWinningRate(int winningRate) {
+//        this.winningRate = winningRate;
+//    }
 }

@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
@@ -463,15 +464,18 @@ public class GameServiceImpl implements GameService {
         gameRepository.save(game);
         return game;
     }
-    private void updateWinningrae(String username){
-
-    }
+//    @Async
+//    @Scheduled(fixedRate = 60_000)
+//    public void updateWinningrae(String username){
+//
+//    }
     @Async
     @Scheduled(fixedRate = 300_000)
     public void abandon() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime compare = now.minusSeconds(GameConstants.ABANDON_TIME);
         gameRepository.abandonGames(java.sql.Date.valueOf(compare.toLocalDate()), Status.running, Status.abandoned);
+
     }
 
     @Override
@@ -520,6 +524,15 @@ public class GameServiceImpl implements GameService {
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    @Override
+    public int getWinningRate(String username) {
+       double a=(double) gameRepository.getUserGames(username);
+       double b=(double) gameRepository.getWinningGames(username);
+        DecimalFormat df = new DecimalFormat("#.##");
+        double rate = Double.valueOf(df.format(b/a));
+       return (int) (rate*100);
     }
 
 

@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.function.ServerRequest;
 
+import javax.websocket.server.PathParam;
 import java.util.Date;
 
 import static cz.gyarab3e.rocnikovaprace3.controller.SecurityConstants.*;
@@ -34,8 +35,10 @@ public class UserController {
         this.userService = userService;
     }
 
+
+
     @PostMapping("/signUp")
-    public ResponseEntity<Void> signUp(@RequestBody UserHolder holder) {
+    public ResponseEntity<String> signUp(@RequestBody UserHolder holder) {
         GameUser user = new GameUser();
         user.setUsername(holder.getUsername());
         String password = holder.getPassword();
@@ -43,9 +46,32 @@ public class UserController {
         user.setPassword(encodedPassword);
         try {
             userService.signUp(user);
-        }catch (IllegalArgumentException e) {
+
+
+            Authentication authenticate = authenticationManager
+                    .authenticate(
+                            new UsernamePasswordAuthenticationToken(
+                                    holder.getUsername(), holder.getPassword()
+                            )
+                    );
+
+
+            String token = JWT.create()
+                    .withSubject(holder.getUsername())
+                    .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                    .sign(Algorithm.HMAC512(SECRET.getBytes()));
+
+            return ResponseEntity.ok()
+                    .header(
+
+                            holder.getUsername()
+                    )
+                    .body(
+                            token);
+        }
+        catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
 
     @PostMapping("/updateUser")
@@ -66,7 +92,6 @@ public class UserController {
                             )
                     );
 
-            GameUser user = (GameUser) authenticate.getPrincipal();
 
             String token = JWT.create()
                     .withSubject(holder.getUsername())
