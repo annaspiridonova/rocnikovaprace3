@@ -6,15 +6,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface GameRepository extends JpaRepository<Game, Long> {
 
      Optional<Game> findByPlayingCode(String playingCode);
-     @Modifying
-     @Transactional
-     @Query("UPDATE Game set status= :newStatus where status=:oldStatus and updatedate<:date")
-     int abandonGames(@Param("date") java.sql.Date date,@Param("oldStatus") Status oldStatus,@Param("newStatus") Status newStatus);
+
+     @Query("SELECT g from Game g where g.status = :status and g.updatedate<:date")
+     List<Game> abandonedGames(@Param("date") java.sql.Date date, @Param("status") Status status);
      @Query("select count (g.id) from Game g where g.user1.username=:username or g.user2.username=:username")
      Long getUserGames(@Param("username")String username);
      @Query("select count (g.id) from Game g where g.winner.username=:username")

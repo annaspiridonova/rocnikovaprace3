@@ -1,6 +1,5 @@
 package cz.gyarab3e.rocnikovaprace3.services;
 
-import cz.gyarab3e.rocnikovaprace3.controller.BoardHolder;
 import cz.gyarab3e.rocnikovaprace3.controller.MoveStatus;
 import cz.gyarab3e.rocnikovaprace3.jpa.*;
 
@@ -9,7 +8,7 @@ import java.util.Optional;
 public interface GameService {
      Game startGameWithCode();
      Game joinGame(String playingCode) throws NoGameException, ValidationException;
-     MoveStatus move(Long id, int x, int y) throws MoveExceptions, NoGameException;
+     MoveStatus move(Long id, int x, int y) throws MoveException, NoGameException;
      BaseGame getBaseGame(int id);
      Optional<Game> getGame(Long id);
      Game getCurrentGame();

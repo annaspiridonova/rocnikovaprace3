@@ -110,7 +110,4 @@ public class UserController {
         }
 
     }
-
-////    public User getUser(String username);
-////    public void updateUser(User user);
 }

@@ -1,7 +1,6 @@
 package cz.gyarab3e.rocnikovaprace3.services;
 
 
-import cz.gyarab3e.rocnikovaprace3.controller.BoardHolder;
 import cz.gyarab3e.rocnikovaprace3.controller.MoveStatus;
 import cz.gyarab3e.rocnikovaprace3.jpa.*;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -14,10 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 @Transactional
@@ -105,20 +101,20 @@ public class GameServiceImpl implements GameService {
 
 
     @Override
-    public MoveStatus move(Long id, int x, int y) throws MoveExceptions, NoGameException {
+    public MoveStatus move(Long id, int x, int y) throws MoveException, NoGameException {
         Optional<Game> optionalGame = getGame(id);
         if(optionalGame.isEmpty()){
             throw new NoGameException();
         }
         Game game=optionalGame.get();
         if (game.getStatus() != Status.running) {
-            throw new MoveExceptions(); //todo
+            throw new MoveException(MoveError.gameIsNotRunning);
         }
         CellStatus[][] cellStatuses;
         MoveStatus moveStatus = MoveStatus.shot;
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (!user.getName().equals(game.getPlayingUser().getUsername())) {
-            throw new MoveExceptions(); //todo
+            throw new MoveException(MoveError.wrongPlayingUser);
         }
         if (user.getName().equals(game.getUser1().getUsername())) {
             cellStatuses = game.getCellStatuses2();
@@ -129,7 +125,7 @@ public class GameServiceImpl implements GameService {
         }
         CellStatus status = cellStatuses[x][y];
         switch (status) {
-            case shot -> throw new MoveExceptions();
+            case shot -> throw new MoveException(MoveError.cellShot);
             case blank -> {
                 cellStatuses[x][y] = CellStatus.unavailable;
                 moveStatus = MoveStatus.missed;
@@ -151,7 +147,7 @@ public class GameServiceImpl implements GameService {
                 }
             }
 
-            case unavailable -> throw new MoveExceptions();
+            case unavailable -> throw new MoveException(MoveError.cellUnavaiable);
 
         }
         if (game.getPlayingUser().getUsername().equals(game.getUser1().getUsername())) {
@@ -474,8 +470,16 @@ public class GameServiceImpl implements GameService {
     public void abandon() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime compare = now.minusSeconds(GameConstants.ABANDON_TIME);
-        gameRepository.abandonGames(java.sql.Date.valueOf(compare.toLocalDate()), Status.running, Status.abandoned);
-
+        List<Game> list=gameRepository.abandonedGames(java.sql.Date.valueOf(compare.toLocalDate()), Status.running);
+        for(int i=0;i<list.size();i++){
+            Game game= list.get(i);
+            game.setStatus(Status.abandoned);
+            if(game.getPlayingUser().equals(game.getUser1()) ){
+            game.setWinner(game.getUser2());}
+            if(game.getPlayingUser().equals(game.getUser2())){
+                game.setWinner(game.getUser1());}
+            gameRepository.save(game);
+        }
     }
 
     @Override
@@ -513,16 +517,20 @@ public class GameServiceImpl implements GameService {
     @Override
     public CellStatus[][] returnOpponentsBoard(Long id, String username) throws NoGameException {
         Optional<Game> optionalGame = getGame(id);
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new NoGameException();
         }
-        Game game=optionalGame.get();
-        if (username.equals(game.getUser1().getUsername())) {
-            return unknownBoard(game.getCellStatuses1());
-        } else if (username.equals(game.getUser2().getUsername())) {
-            return unknownBoard(game.getCellStatuses2());
+        Game game = optionalGame.get();
+        if (!game.getStatus().equals(Status.running)) {
+            return null;
         } else {
-            throw new IllegalArgumentException();
+            if (username.equals(game.getUser1().getUsername())) {
+                return unknownBoard(game.getCellStatuses2());
+            } else if (username.equals(game.getUser2().getUsername())) {
+                return unknownBoard(game.getCellStatuses1());
+            } else {
+                throw new IllegalArgumentException();
+            }
         }
     }
 

@@ -1,9 +1,9 @@
 package cz.gyarab3e.rocnikovaprace3.controller;
 
-import cz.gyarab3e.rocnikovaprace3.jpa.CellStatus;
 import cz.gyarab3e.rocnikovaprace3.jpa.Game;
 import cz.gyarab3e.rocnikovaprace3.services.*;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +50,6 @@ public class GameController {
     public ResponseEntity<GameHolder> getGame(@PathVariable Long id){
         Optional<Game> game=gameService.getGame(id);
         if(game.isPresent()){
-
         return ResponseEntity.ok(new GameHolder(game.get()));
     }else{
             return new ResponseEntity<>( HttpStatus.NOT_FOUND );
@@ -96,12 +95,12 @@ public class GameController {
     }
 
     @PostMapping("/getMove")
-    public ResponseEntity<MoveStatus> move(@RequestBody MoveHolder moveHolder){
+    public ResponseEntity<MoveStatus> move(@RequestBody MoveHolder moveHolder) throws MoveException {
         try{
             return ResponseEntity.ok(gameService.move(moveHolder.id, moveHolder.x, moveHolder.y));
         }catch(IllegalArgumentException e){
             return new ResponseEntity<>( HttpStatus.BAD_REQUEST );
-        } catch (MoveExceptions | NoGameException e) {
+        } catch (NoGameException e) {
             e.printStackTrace();
             return new ResponseEntity<>( HttpStatus.NOT_FOUND );
         }
