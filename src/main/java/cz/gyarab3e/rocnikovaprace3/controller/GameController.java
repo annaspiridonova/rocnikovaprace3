@@ -49,11 +49,7 @@ public class GameController {
     @GetMapping(value="/{id}")
     public ResponseEntity<GameHolder> getGame(@PathVariable Long id){
         Optional<Game> game=gameService.getGame(id);
-        if(game.isPresent()){
-        return ResponseEntity.ok(new GameHolder(game.get()));
-    }else{
-            return new ResponseEntity<>( HttpStatus.NOT_FOUND );
-        }
+        return game.map(value -> ResponseEntity.ok(new GameHolder(value))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping(value="/getUsersBoard")
@@ -79,13 +75,14 @@ public class GameController {
 
 
     @PostMapping("/saveBoard")
-    public ResponseEntity<Void> saveBoard(@RequestBody BoardHolder boardholder){
+    public ResponseEntity<Void> saveBoard(@RequestBody BoardHolder boardholder) throws ValidationException{
         try {
-            gameService.saveBoard(boardholder.id, boardholder.getBoard());
-        } catch (ValidationException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>( HttpStatus.BAD_REQUEST );
-        } catch (IllegalArgumentException e){
+            gameService.saveBoard(boardholder.id, boardholder.getBoard());}
+//        } catch (ValidationException e) {
+//            e.printStackTrace();
+//            return new ResponseEntity<>( HttpStatus.BAD_REQUEST );
+//        }
+        catch (IllegalArgumentException e){
             return new ResponseEntity<>( HttpStatus.BAD_REQUEST );
         } catch (NoGameException e) {
             e.printStackTrace();

@@ -1,6 +1,4 @@
 package cz.gyarab3e.rocnikovaprace3.services;
-
-
 import cz.gyarab3e.rocnikovaprace3.controller.MoveStatus;
 import cz.gyarab3e.rocnikovaprace3.jpa.*;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -45,13 +43,13 @@ public class GameServiceImpl implements GameService {
 
             game.setStatus(Status.waitingForBoards);
             game.setUser2((GameUser) user2.getPrincipal());
-            if(game.getUser1().getUsername().equals(game.getUser2().getUsername())){
-                throw new ValidationException();
+            if (game.getUser1().getUsername().equals(game.getUser2().getUsername())) {
+                throw new ValidationException(ValidationError.UserIsAlreadyInTheGame); //user se prihlasuje ke stejny hre
             }
             gameRepository.save(game);
             return game;
         } else {
-            throw new NoGameException();
+            throw new NoGameException(NoGameError.NoGame);
         }
     }
 
@@ -60,28 +58,29 @@ public class GameServiceImpl implements GameService {
     public void saveBoard(Long id, CellStatus[][] board) throws ValidationException, NoGameException {
         boolean validBoard = boardValidaton(board);
         if (!validBoard) {
-            throw new ValidationException();
+            throw new ValidationException(ValidationError.BoardIsNotValid); //nevalidni deska
+
         }
         Optional<Game> optionalGame = getGame(id);
-        if(optionalGame.isEmpty()){
-            throw new NoGameException();
+        if (optionalGame.isEmpty()) {
+            throw new NoGameException(NoGameError.NoGame);
         }
-        Game game=optionalGame.get();
+        Game game = optionalGame.get();
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (user.getName().equals(game.getUser1().getUsername())) {
             if (game.getCellStatuses1() == null) {
                 game.setCellStatuses1(board);
-            }else{
-                throw new ValidationException();
+            } else {
+                throw new ValidationException(ValidationError.BoardIsAlreadyFilled); //uz zadana deska
             }
         } else if (user.getName().equals(game.getUser2().getUsername())) {
             if (game.getCellStatuses2() == null) {
                 game.setCellStatuses2(board);
-            }else{
-                throw new ValidationException();
+            } else {
+                throw new ValidationException(ValidationError.BoardIsAlreadyFilled);  // uz zadana deska
             }
         } else {
-            throw new IllegalArgumentException();
+            throw new ValidationException(ValidationError.UserIsNotInTheGame);  // user neni ve hre
         }
         if (game.getCellStatuses1() != null && game.getCellStatuses2() != null) {
             game.setStatus(Status.running);
@@ -103,15 +102,15 @@ public class GameServiceImpl implements GameService {
     @Override
     public MoveStatus move(Long id, int x, int y) throws MoveException, NoGameException {
         Optional<Game> optionalGame = getGame(id);
-        if(optionalGame.isEmpty()){
-            throw new NoGameException();
+        if (optionalGame.isEmpty()) {
+            throw new NoGameException(NoGameError.NoGame);
         }
-        Game game=optionalGame.get();
+        Game game = optionalGame.get();
         if (game.getStatus() != Status.running) {
             throw new MoveException(MoveError.gameIsNotRunning);
         }
         CellStatus[][] cellStatuses;
-        MoveStatus moveStatus = MoveStatus.shot;
+        MoveStatus moveStatus=MoveStatus.shot;
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (!user.getName().equals(game.getPlayingUser().getUsername())) {
             throw new MoveException(MoveError.wrongPlayingUser);
@@ -331,11 +330,7 @@ public class GameServiceImpl implements GameService {
                 }
             }
         }
-        if (filledCells != 15 || !oneChecked || !fiveChecked || !twoChecked || !threeChecked || !fourChecked) {
-            return false;
-        } else {
-            return true;
-        }
+        return filledCells == 15 && oneChecked && fiveChecked && twoChecked && threeChecked && fourChecked;
     }
 
     private void unavaiableing(int x, int y, CellStatus[][] cellStatus) {
@@ -435,21 +430,21 @@ public class GameServiceImpl implements GameService {
     public BaseGame abandon(Long id) throws NoGameException, AccessDeniedExceptions {
         Optional<Game> optionalGame = getGame(id);
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
-        if(optionalGame.isEmpty()){
-            throw new NoGameException();
+        if (optionalGame.isEmpty()) {
+            throw new NoGameException(NoGameError.NoGame);
         }
 
-        Game game=optionalGame.get();
+        Game game = optionalGame.get();
 
-        if(!user.getName().equals(game.getUser1().getUsername())&&!user.getName().equals(game.getUser2().getUsername())){
+        if (!user.getName().equals(game.getUser1().getUsername()) && !user.getName().equals(game.getUser2().getUsername())) {
             throw new AccessDeniedExceptions();
         }
-        Status status=game.getStatus();
-        if(status==Status.waiting){
+        Status status = game.getStatus();
+        if (status == Status.waiting) {
             gameRepository.deleteById(id);
             return game;
         }
-        if(status==Status.running||status==Status.waitingForBoards){
+        if (status == Status.running || status == Status.waitingForBoards) {
             if (user.getName().equals(game.getUser1().getUsername())) {
                 game.setWinner(game.getUser2());
             } else if (user.getName().equals(game.getUser2().getUsername())) {
@@ -460,24 +455,22 @@ public class GameServiceImpl implements GameService {
         gameRepository.save(game);
         return game;
     }
-//    @Async
-//    @Scheduled(fixedRate = 60_000)
-//    public void updateWinningrae(String username){
-//
-//    }
+
     @Async
     @Scheduled(fixedRate = 300_000)
     public void abandon() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime compare = now.minusSeconds(GameConstants.ABANDON_TIME);
-        List<Game> list=gameRepository.abandonedGames(java.sql.Date.valueOf(compare.toLocalDate()), Status.running);
-        for(int i=0;i<list.size();i++){
-            Game game= list.get(i);
+        List<Game> list = gameRepository.abandonedGames(java.sql.Date.valueOf(compare.toLocalDate()), Status.running);
+        for (int i = 0; i < list.size(); i++) {
+            Game game = list.get(i);
             game.setStatus(Status.abandoned);
-            if(game.getPlayingUser().equals(game.getUser1()) ){
-            game.setWinner(game.getUser2());}
-            if(game.getPlayingUser().equals(game.getUser2())){
-                game.setWinner(game.getUser1());}
+            if (game.getPlayingUser().equals(game.getUser1())) {
+                game.setWinner(game.getUser2());
+            }
+            if (game.getPlayingUser().equals(game.getUser2())) {
+                game.setWinner(game.getUser1());
+            }
             gameRepository.save(game);
         }
     }
@@ -485,10 +478,10 @@ public class GameServiceImpl implements GameService {
     @Override
     public CellStatus[][] returnUsersBoard(Long id, String username) throws NoGameException {
         Optional<Game> optionalGame = getGame(id);
-        if(optionalGame.isEmpty()){
-            throw new NoGameException();
+        if (optionalGame.isEmpty()) {
+            throw new NoGameException(NoGameError.NoGame);
         }
-        Game game=optionalGame.get();
+        Game game = optionalGame.get();
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (!user.getName().equals(username)) {
             throw new IllegalArgumentException();//todo
@@ -506,8 +499,8 @@ public class GameServiceImpl implements GameService {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 CellStatus status = board[i][j];
-                switch (status) {
-                    case filled -> board[i][j] = CellStatus.blank;
+                if (status == CellStatus.filled) {
+                    board[i][j] = CellStatus.blank;
                 }
             }
         }
@@ -518,7 +511,7 @@ public class GameServiceImpl implements GameService {
     public CellStatus[][] returnOpponentsBoard(Long id, String username) throws NoGameException {
         Optional<Game> optionalGame = getGame(id);
         if (optionalGame.isEmpty()) {
-            throw new NoGameException();
+            throw new NoGameException(NoGameError.NoGame);
         }
         Game game = optionalGame.get();
         if (!game.getStatus().equals(Status.running)) {
@@ -536,11 +529,11 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public int getWinningRate(String username) {
-       double a=(double) gameRepository.getUserGames(username);
-       double b=(double) gameRepository.getWinningGames(username);
+        double a = (double) gameRepository.getUserGames(username);
+        double b = (double) gameRepository.getWinningGames(username);
         DecimalFormat df = new DecimalFormat("#.##");
-        double rate = Double.valueOf(df.format(b/a));
-       return (int) (rate*100);
+        double rate = Double.valueOf(df.format(b / a));
+        return (int) (rate * 100);
     }
 
 
