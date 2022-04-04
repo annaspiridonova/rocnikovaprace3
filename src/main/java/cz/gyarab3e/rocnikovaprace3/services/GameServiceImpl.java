@@ -15,6 +15,7 @@ import java.util.*;
 
 @Service
 @Transactional
+
 public class GameServiceImpl implements GameService {
     private final GameRepository gameRepository;
 
@@ -120,7 +121,7 @@ public class GameServiceImpl implements GameService {
         } else if (user.getName().equals(game.getUser2().getUsername())) {
             cellStatuses = game.getCellStatuses1();
         } else {
-            throw new IllegalArgumentException();
+            throw new NoGameException(NoGameError.NoUser);
         }
         CellStatus status = cellStatuses[x][y];
         switch (status) {
@@ -174,7 +175,7 @@ public class GameServiceImpl implements GameService {
     }
 
     private void markIfExist(int x, int y, CellStatus[][] cellStatus) {
-        if (x > 0 && x < GameConstants.CELL_SIZE && y > 0 && y < GameConstants.CELL_SIZE && cellStatus[x][y] != CellStatus.shot) {
+        if (x >= 0 && x < GameConstants.CELL_SIZE && y >= 0 && y < GameConstants.CELL_SIZE && cellStatus[x][y] != CellStatus.shot) {
             cellStatus[x][y] = CellStatus.unavailable;
         }
     }
@@ -357,8 +358,8 @@ public class GameServiceImpl implements GameService {
         markIfExist(a, y + 1, cellStatus);
 
         do {
-            markIfExist(x, b - 1, cellStatus);
-            markIfExist(x, b + 1, cellStatus);
+            markIfExist(x-1, b , cellStatus);
+            markIfExist(x+1, b , cellStatus);
             b++;
         } while (b < cellStatus.length && cellStatus[x][b] == CellStatus.shot);
         markIfExist(x, b, cellStatus);
@@ -367,8 +368,8 @@ public class GameServiceImpl implements GameService {
 
         b = y;
         do {
-            markIfExist(x, b - 1, cellStatus);
-            markIfExist(x, b + 1, cellStatus);
+            markIfExist(x-1, b , cellStatus);
+            markIfExist(x+1, b , cellStatus);
             b--;
         } while (b > -1 && b < cellStatus.length && cellStatus[x][b] == CellStatus.shot);
         markIfExist(x, b, cellStatus);
@@ -484,14 +485,14 @@ public class GameServiceImpl implements GameService {
         Game game = optionalGame.get();
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (!user.getName().equals(username)) {
-            throw new IllegalArgumentException();//todo
+            throw new NoGameException(NoGameError.NoUser);
         }
         if (username.equals(game.getUser1().getUsername())) {
             return game.getCellStatuses1();
         } else if (username.equals(game.getUser2().getUsername())) {
             return game.getCellStatuses2();
         } else {
-            throw new IllegalArgumentException();
+            throw new NoGameException(NoGameError.NoUser);
         }
     }
 
@@ -522,7 +523,7 @@ public class GameServiceImpl implements GameService {
             } else if (username.equals(game.getUser2().getUsername())) {
                 return unknownBoard(game.getCellStatuses1());
             } else {
-                throw new IllegalArgumentException();
+                throw new NoGameException(NoGameError.NoUser);
             }
         }
     }

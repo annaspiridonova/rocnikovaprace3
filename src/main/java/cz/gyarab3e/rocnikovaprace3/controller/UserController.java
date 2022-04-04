@@ -4,7 +4,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import cz.gyarab3e.rocnikovaprace3.jpa.GameUser;
 import cz.gyarab3e.rocnikovaprace3.services.UserService;
-import org.apache.catalina.Authenticator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,9 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.function.ServerRequest;
 
-import javax.websocket.server.PathParam;
 import java.util.Date;
 
 import static cz.gyarab3e.rocnikovaprace3.controller.SecurityConstants.*;
@@ -34,7 +31,6 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
     }
-
 
 
     @PostMapping("/signUp")
@@ -68,8 +64,7 @@ public class UserController {
                     )
                     .body(
                             token);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
