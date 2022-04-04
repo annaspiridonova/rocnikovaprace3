@@ -1,6 +1,6 @@
 package cz.gyarab3e.rocnikovaprace3.services;
 
-public class ValidationException extends Exception{
+public class ValidationException extends Exception {
     private final ValidationError validationError;
 
 

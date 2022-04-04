@@ -14,10 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -28,7 +24,7 @@ import java.util.Properties;
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "cz.gyarab3e.rocnikovaprace3.jpa")
 @EnableTransactionManagement
-@ComponentScan({"cz.gyarab3e.rocnikovaprace3.services","cz.gyarab3e.rocnikovaprace3.controller"})
+@ComponentScan({"cz.gyarab3e.rocnikovaprace3.services", "cz.gyarab3e.rocnikovaprace3.controller"})
 public class Rocnikovaprace3Application {
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -45,7 +41,7 @@ public class Rocnikovaprace3Application {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(final DataSource ds) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(ds);
-        em.setPackagesToScan( "cz.gyarab3e.rocnikovaprace3.jpa" );
+        em.setPackagesToScan("cz.gyarab3e.rocnikovaprace3.jpa");
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

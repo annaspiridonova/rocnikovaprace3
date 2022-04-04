@@ -1,4 +1,5 @@
 package cz.gyarab3e.rocnikovaprace3.services;
+
 import cz.gyarab3e.rocnikovaprace3.controller.MoveStatus;
 import cz.gyarab3e.rocnikovaprace3.jpa.*;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -111,7 +112,7 @@ public class GameServiceImpl implements GameService {
             throw new MoveException(MoveError.gameIsNotRunning);
         }
         CellStatus[][] cellStatuses;
-        MoveStatus moveStatus=MoveStatus.shot;
+        MoveStatus moveStatus = MoveStatus.shot;
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (!user.getName().equals(game.getPlayingUser().getUsername())) {
             throw new MoveException(MoveError.wrongPlayingUser);
@@ -358,8 +359,8 @@ public class GameServiceImpl implements GameService {
         markIfExist(a, y + 1, cellStatus);
 
         do {
-            markIfExist(x-1, b , cellStatus);
-            markIfExist(x+1, b , cellStatus);
+            markIfExist(x - 1, b, cellStatus);
+            markIfExist(x + 1, b, cellStatus);
             b++;
         } while (b < cellStatus.length && cellStatus[x][b] == CellStatus.shot);
         markIfExist(x, b, cellStatus);
@@ -368,8 +369,8 @@ public class GameServiceImpl implements GameService {
 
         b = y;
         do {
-            markIfExist(x-1, b , cellStatus);
-            markIfExist(x+1, b , cellStatus);
+            markIfExist(x - 1, b, cellStatus);
+            markIfExist(x + 1, b, cellStatus);
             b--;
         } while (b > -1 && b < cellStatus.length && cellStatus[x][b] == CellStatus.shot);
         markIfExist(x, b, cellStatus);
@@ -412,20 +413,10 @@ public class GameServiceImpl implements GameService {
 
 
     @Override
-    public BaseGame getBaseGame(int id) {
-        return null;
-    }
-
-
-    @Override
     public Optional<Game> getGame(Long id) {
         return gameRepository.findById(id);
     }
 
-    @Override
-    public Game getCurrentGame() {
-        return null;
-    }
 
     @Override
     public BaseGame abandon(Long id) throws NoGameException, AccessDeniedExceptions {

@@ -7,20 +7,19 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @SecurityScheme(
-        name = "bearerAuth", // can be set to anything
+        name = "bearerAuth",
         type = SecuritySchemeType.HTTP,
         scheme = "bearer",
         bearerFormat = "JWT"
 
 )
 @OpenAPIDefinition(
-        info = @Info(	title = "Sample API",
+        info = @Info(title = "Sample API",
                 version = "v1"),
-        security = @SecurityRequirement(name = "bearerAuth") // references the name defined in the line 3
+        security = @SecurityRequirement(name = "bearerAuth")
 )
 class OpenAPIConfiguration {
 

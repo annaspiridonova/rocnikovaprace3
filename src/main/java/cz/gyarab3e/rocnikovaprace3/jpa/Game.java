@@ -15,7 +15,7 @@ import java.util.Date;
         name = "cell_status_array",
         typeClass = EnumArrayType.class
 )
-public class Game extends BaseGame{
+public class Game extends BaseGame {
     @ManyToOne
     private GameUser user1;
 
@@ -101,7 +101,7 @@ public class Game extends BaseGame{
     public void setUser2(GameUser user2) {
         this.user2 = user2;
     }
-    
+
 
     public CellStatus[][] getCellStatuses1() {
         return cellStatuses1;
@@ -119,13 +119,12 @@ public class Game extends BaseGame{
         this.cellStatuses2 = cellStatuses2;
     }
 
-    public GameUser getUserByName(String name){
-        if(user1.getUsername().equals(name)){
+    public GameUser getUserByName(String name) {
+        if (user1.getUsername().equals(name)) {
             return user1;
-        }
-        else if(user2.getUsername().equals(name)){
+        } else if (user2.getUsername().equals(name)) {
             return user2;
-        }else{
+        } else {
             return null;
         }
     }

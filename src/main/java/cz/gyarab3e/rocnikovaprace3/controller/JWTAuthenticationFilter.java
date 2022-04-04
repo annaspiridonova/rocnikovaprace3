@@ -20,9 +20,10 @@ import static cz.gyarab3e.rocnikovaprace3.controller.SecurityConstants.*;
 
 public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     private final UserService userService;
+
     public JWTAuthenticationFilter(AuthenticationManager authManager, UserService userService) {
         super(authManager);
-        this.userService=userService;
+        this.userService = userService;
     }
 
 
@@ -55,7 +56,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
                     .getSubject();
 
             if (username != null) {
-                GameUser user=userService.getUser(username);
+                GameUser user = userService.getUser(username);
                 // new arraylist means authorities
                 return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
             }

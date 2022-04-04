@@ -10,7 +10,7 @@ import javax.transaction.Transactional;
 
 @Service
 @Transactional
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     public UserServiceImpl(UserRepository userRepository) {
@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void signUp(GameUser user) {
-        if(userRepository.findById(user.getUsername()).isPresent()){
+        if (userRepository.findById(user.getUsername()).isPresent()) {
             throw new IllegalArgumentException();
         }
         userRepository.save(user);

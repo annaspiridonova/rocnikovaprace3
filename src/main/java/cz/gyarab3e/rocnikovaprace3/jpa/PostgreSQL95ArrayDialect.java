@@ -1,7 +1,6 @@
 package cz.gyarab3e.rocnikovaprace3.jpa;
 
 import org.hibernate.dialect.PostgreSQL10Dialect;
-import org.hibernate.dialect.PostgreSQL95Dialect;
 
 import java.sql.Types;
 

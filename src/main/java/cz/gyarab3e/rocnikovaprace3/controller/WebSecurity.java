@@ -27,7 +27,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Override @Bean
+    @Override
+    @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
@@ -37,19 +38,20 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.csrf().disable().cors().and().authorizeRequests()
                 .anyRequest().authenticated()
                 .and()
-                .addFilter(new JWTAuthenticationFilter(authenticationManager(),userDetailsService))
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(), userDetailsService))
                 // this disables session creation on Spring Security
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
+
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
 
     }
+
     @Override
     public void configure(
-            org.springframework.security.config.annotation.web.builders.WebSecurity web)
-    {
+            org.springframework.security.config.annotation.web.builders.WebSecurity web) {
         web
                 .ignoring()
                 .antMatchers(SIGN_IN_URL)

@@ -11,12 +11,14 @@ import java.util.Optional;
 
 public interface GameRepository extends JpaRepository<Game, Long> {
 
-     Optional<Game> findByPlayingCode(String playingCode);
+    Optional<Game> findByPlayingCode(String playingCode);
 
-     @Query("SELECT g from Game g where g.status = :status and g.updatedate<:date")
-     List<Game> abandonedGames(@Param("date") java.sql.Date date, @Param("status") Status status);
-     @Query("select count (g.id) from Game g where g.user1.username=:username or g.user2.username=:username")
-     Long getUserGames(@Param("username")String username);
-     @Query("select count (g.id) from Game g where g.winner.username=:username")
-     Long getWinningGames(@Param("username")String username);
+    @Query("SELECT g from Game g where g.status = :status and g.updatedate<:date")
+    List<Game> abandonedGames(@Param("date") java.sql.Date date, @Param("status") Status status);
+
+    @Query("select count (g.id) from Game g where g.user1.username=:username or g.user2.username=:username")
+    Long getUserGames(@Param("username") String username);
+
+    @Query("select count (g.id) from Game g where g.winner.username=:username")
+    Long getWinningGames(@Param("username") String username);
 }

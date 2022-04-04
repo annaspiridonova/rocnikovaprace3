@@ -68,17 +68,19 @@ public class GameHolder {
         this.code = code;
     }
 
-    public GameHolder(Game game){
-        id =game.getId();
-        code= game.getPlayingCode();
-        status =game.getStatus();
-        if(game.getPlayingUser()!=null){
-        currentPlayer=game.getPlayingUser().getUsername();}
-        lastX= game.getLastX();
-        lastY= game.getLastY();
-        lastMoveStatus=game.getLastMoveStatus();
+    public GameHolder(Game game) {
+        id = game.getId();
+        code = game.getPlayingCode();
+        status = game.getStatus();
+        if (game.getPlayingUser() != null) {
+            currentPlayer = game.getPlayingUser().getUsername();
+        }
+        lastX = game.getLastX();
+        lastY = game.getLastY();
+        lastMoveStatus = game.getLastMoveStatus();
     }
-    public GameHolder(Long id, String code, Status status,String currentPlayer) {
+
+    public GameHolder(Long id, String code, Status status, String currentPlayer) {
         this.id = id;
         this.code = code;
         this.status = status;

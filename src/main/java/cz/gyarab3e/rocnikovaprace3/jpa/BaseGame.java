@@ -46,10 +46,6 @@ public class BaseGame {
         this.status = status;
     }
 
-    public GameUser getWinner() {
-        return winner;
-    }
-
     public void setWinner(GameUser winner) {
         this.winner = winner;
     }

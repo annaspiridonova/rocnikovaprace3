@@ -14,23 +14,26 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @ControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
-        @ExceptionHandler(MoveException.class)
-        public final ResponseEntity<String> handleAllMoveExceptions(MoveException ex, WebRequest request) {
-            String error = new String(ex.getMoveError().name());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    @ExceptionHandler(ValidationException.class)
-    public final ResponseEntity<String> handleAllValidationExceptions(ValidationException ex, WebRequest request){
-            String error=new String(ex.getValidationError().name());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(MoveException.class)
+    public final ResponseEntity<String> handleAllMoveExceptions(MoveException ex, WebRequest request) {
+        String error = new String(ex.getMoveError().name());
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(ValidationException.class)
+    public final ResponseEntity<String> handleAllValidationExceptions(ValidationException ex, WebRequest request) {
+        String error = new String(ex.getValidationError().name());
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(NoGameException.class)
-    public final ResponseEntity<String> handleAllNotFoundExceptions(NoGameException ex, WebRequest request){
-        String error=new String(ex.getNoGameError().name());
+    public final ResponseEntity<String> handleAllNotFoundExceptions(NoGameException ex, WebRequest request) {
+        String error = new String(ex.getNoGameError().name());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(AccessDeniedExceptions.class)
-    public final ResponseEntity<String> handleAllAccessDeniedExceptions(NoGameException ex, WebRequest request){
+    public final ResponseEntity<String> handleAllAccessDeniedExceptions(NoGameException ex, WebRequest request) {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-    }
+}

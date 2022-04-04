@@ -1,4 +1,5 @@
 package cz.gyarab3e.rocnikovaprace3.jpa;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,7 +13,6 @@ public class GameUser implements UserDetails {
     @Id
     private String username;
     private String password;
-//    private int winningRate;
 
     public String getUsername() {
         return username;
@@ -54,12 +54,5 @@ public class GameUser implements UserDetails {
     public void setPassword(String password) {
         this.password = password;
     }
-//
-//    public int getWinningRate() {
-//        return winningRate;
-//    }
-//
-//    public void setWinningRate(int winningRate) {
-//        this.winningRate = winningRate;
-//    }
+
 }
