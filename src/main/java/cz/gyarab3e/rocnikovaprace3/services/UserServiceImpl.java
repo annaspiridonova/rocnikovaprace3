@@ -31,10 +31,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.getById(username);
     }
 
-    @Override
-    public void updateUser(GameUser user) {
-        userRepository.save(user);
-    }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
