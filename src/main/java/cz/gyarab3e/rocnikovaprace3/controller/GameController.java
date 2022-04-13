@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.websocket.server.PathParam;
 import java.util.Optional;
 
+//game endpoints, receiving and handling client requests
 @CrossOrigin
 @RestController
 @RequestMapping("/games")
@@ -35,7 +36,7 @@ public class GameController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<GameHolder> joinGame(@RequestBody CodeHolder code) throws ValidationException, NoGameException {
+    public ResponseEntity<GameHolder> joinGame(@RequestBody CodeHolder code) throws ValidationException, NotFoundException {
         Game game = gameService.joinGame(code.getCode());
         return ResponseEntity.ok(new GameHolder(game.getId(), game.getPlayingCode(), game.getStatus(), null));
     }
@@ -47,14 +48,14 @@ public class GameController {
     }
 
     @GetMapping(value = "/getUsersBoard")
-    public ResponseEntity<BoardHolder> getUsersBoard(@Param("id") Long id, @Param("username") String username) throws NoGameException {
+    public ResponseEntity<BoardHolder> getUsersBoard(@Param("id") Long id, @Param("username") String username) throws NotFoundException {
 
         return ResponseEntity.ok(new BoardHolder(id, gameService.returnUsersBoard(id, username)));
 
     }
 
     @GetMapping(value = "/getOpponentsBoard")
-    public ResponseEntity<BoardHolder> getOpponentsBoard(@Param("id") Long id, @Param("username") String username) throws NoGameException {
+    public ResponseEntity<BoardHolder> getOpponentsBoard(@Param("id") Long id, @Param("username") String username) throws NotFoundException {
 
         return ResponseEntity.ok(new BoardHolder(id, gameService.returnOpponentsBoard(id, username)));
 
@@ -62,20 +63,20 @@ public class GameController {
 
 
     @PostMapping("/saveBoard")
-    public ResponseEntity<Void> saveBoard(@RequestBody BoardHolder boardholder) throws ValidationException, NoGameException {
+    public ResponseEntity<Void> saveBoard(@RequestBody BoardHolder boardholder) throws ValidationException, NotFoundException {
         gameService.saveBoard(boardholder.getId(), boardholder.getBoard());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/getMove")
-    public ResponseEntity<MoveStatus> move(@RequestBody MoveHolder moveHolder) throws MoveException, NoGameException {
+    public ResponseEntity<MoveStatus> move(@RequestBody MoveHolder moveHolder) throws MoveException, NotFoundException {
         return ResponseEntity.ok(gameService.move(moveHolder.id, moveHolder.x, moveHolder.y));
 
 
     }
 
     @GetMapping("/abandon")
-    public ResponseEntity<Void> abandon(@Param("id") Long id) throws AccessDeniedExceptions, NoGameException {
+    public ResponseEntity<Void> abandon(@Param("id") Long id) throws AccessDeniedExceptions, NotFoundException {
 
         gameService.abandon(id);
 

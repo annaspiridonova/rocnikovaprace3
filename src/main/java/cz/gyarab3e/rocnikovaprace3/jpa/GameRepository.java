@@ -1,14 +1,13 @@
 package cz.gyarab3e.rocnikovaprace3.jpa;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+// taking data from db
 public interface GameRepository extends JpaRepository<Game, Long> {
 
     Optional<Game> findByPlayingCode(String playingCode);

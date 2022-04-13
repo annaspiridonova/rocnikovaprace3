@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import java.util.ArrayList;
 import java.util.Collection;
 
+// user
 @Entity
 public class GameUser implements UserDetails {
     @Id

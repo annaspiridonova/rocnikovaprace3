@@ -32,7 +32,7 @@ public class UserController {
         this.userService = userService;
     }
 
-
+    // user endpoints, receiving and handling client requests
     @PostMapping("/signUp")
     public ResponseEntity<String> signUp(@RequestBody UserHolder holder) {
         GameUser user = new GameUser();

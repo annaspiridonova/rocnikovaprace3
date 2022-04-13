@@ -2,6 +2,7 @@ package cz.gyarab3e.rocnikovaprace3.controller;
 
 import cz.gyarab3e.rocnikovaprace3.jpa.CellStatus;
 
+//holding attributes of board
 public class BoardHolder {
     final private Long id;
     final private CellStatus[][] board;

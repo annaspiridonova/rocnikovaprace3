@@ -1,5 +1,6 @@
 package cz.gyarab3e.rocnikovaprace3.controller;
 
+// code as an object
 public class CodeHolder {
     private String code;
 

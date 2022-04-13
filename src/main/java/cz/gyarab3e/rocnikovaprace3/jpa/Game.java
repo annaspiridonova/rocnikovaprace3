@@ -2,14 +2,13 @@ package cz.gyarab3e.rocnikovaprace3.jpa;
 
 import com.vladmihalcea.hibernate.type.array.EnumArrayType;
 import cz.gyarab3e.rocnikovaprace3.controller.MoveStatus;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.Date;
 
+//game attributes
 @Entity
 @TypeDef(
         name = "cell_status_array",

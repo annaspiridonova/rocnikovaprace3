@@ -10,6 +10,7 @@ import javax.transaction.Transactional;
 
 @Service
 @Transactional
+// implication of user service
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
@@ -17,6 +18,7 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
+    //sign up implication
     @Override
     public void signUp(GameUser user) {
         if (userRepository.findById(user.getUsername()).isPresent()) {
@@ -30,7 +32,6 @@ public class UserServiceImpl implements UserService {
     public GameUser getUser(String username) {
         return userRepository.getById(username);
     }
-
 
 
     @Override

@@ -1,8 +1,10 @@
 package cz.gyarab3e.rocnikovaprace3.controller;
 
+import cz.gyarab3e.rocnikovaprace3.jpa.BaseGame;
 import cz.gyarab3e.rocnikovaprace3.jpa.Game;
 import cz.gyarab3e.rocnikovaprace3.jpa.Status;
 
+//game attributes
 public class GameHolder {
     private Long id;
     private String code;
@@ -11,6 +13,7 @@ public class GameHolder {
     private Integer lastX;
     private Integer lastY;
     private MoveStatus lastMoveStatus;
+
 
     public String getCurrentPlayer() {
         return currentPlayer;

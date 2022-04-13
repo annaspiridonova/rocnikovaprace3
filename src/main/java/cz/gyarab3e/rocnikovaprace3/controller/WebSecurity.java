@@ -16,6 +16,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import static cz.gyarab3e.rocnikovaprace3.controller.SecurityConstants.SIGN_IN_URL;
 import static cz.gyarab3e.rocnikovaprace3.controller.SecurityConstants.SIGN_UP_URL;
 
+//web security
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
 
@@ -49,6 +50,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     }
 
+    //urls that are accessible
     @Override
     public void configure(
             org.springframework.security.config.annotation.web.builders.WebSecurity web) {
@@ -62,6 +64,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/swagger-ui.html/**");
     }
 
+    //cors
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

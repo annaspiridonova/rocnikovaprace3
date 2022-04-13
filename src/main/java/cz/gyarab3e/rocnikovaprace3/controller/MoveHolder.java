@@ -1,5 +1,6 @@
 package cz.gyarab3e.rocnikovaprace3.controller;
 
+// move attributes
 public class MoveHolder {
     int x;
     int y;

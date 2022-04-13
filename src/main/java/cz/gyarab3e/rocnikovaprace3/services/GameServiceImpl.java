@@ -20,7 +20,7 @@ import java.util.*;
 public class GameServiceImpl implements GameService {
     private final GameRepository gameRepository;
 
-
+    // game service implication
     public GameServiceImpl(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
     }
@@ -36,8 +36,9 @@ public class GameServiceImpl implements GameService {
         return game;
     }
 
+    // methode for joining game
     @Override
-    public Game joinGame(String playingCode) throws NoGameException, ValidationException {
+    public Game joinGame(String playingCode) throws NotFoundException, ValidationException {
         Optional<Game> gameOptional = gameRepository.findByPlayingCode(playingCode);
         if (gameOptional.isPresent()) {
             Authentication user2 = SecurityContextHolder.getContext().getAuthentication();
@@ -46,26 +47,26 @@ public class GameServiceImpl implements GameService {
             game.setStatus(Status.waitingForBoards);
             game.setUser2((GameUser) user2.getPrincipal());
             if (game.getUser1().getUsername().equals(game.getUser2().getUsername())) {
-                throw new ValidationException(ValidationError.UserIsAlreadyInTheGame); //user se prihlasuje ke stejny hre
+                throw new ValidationException(ValidationError.UserIsAlreadyInTheGame); //user is joining his game
             }
             gameRepository.save(game);
             return game;
         } else {
-            throw new NoGameException(NoGameError.NoGame);
+            throw new NotFoundException(NotFoundError.NoGame);
         }
     }
 
-
+    // methode for saving board
     @Override
-    public void saveBoard(Long id, CellStatus[][] board) throws ValidationException, NoGameException {
-        boolean validBoard = boardValidaton(board);
+    public void saveBoard(Long id, CellStatus[][] board) throws ValidationException, NotFoundException {
+        boolean validBoard = boardValidation(board);
         if (!validBoard) {
-            throw new ValidationException(ValidationError.BoardIsNotValid); //nevalidni deska
+            throw new ValidationException(ValidationError.BoardIsNotValid); //invalid board
 
         }
         Optional<Game> optionalGame = getGame(id);
         if (optionalGame.isEmpty()) {
-            throw new NoGameException(NoGameError.NoGame);
+            throw new NotFoundException(NotFoundError.NoGame);
         }
         Game game = optionalGame.get();
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
@@ -100,19 +101,19 @@ public class GameServiceImpl implements GameService {
 
     }
 
-
+    // methode for moves
     @Override
-    public MoveStatus move(Long id, int x, int y) throws MoveException, NoGameException {
+    public MoveStatus move(Long id, int x, int y) throws MoveException, NotFoundException {
         Optional<Game> optionalGame = getGame(id);
         if (optionalGame.isEmpty()) {
-            throw new NoGameException(NoGameError.NoGame);
+            throw new NotFoundException(NotFoundError.NoGame);
         }
         Game game = optionalGame.get();
         if (game.getStatus() != Status.running) {
             throw new MoveException(MoveError.gameIsNotRunning);
         }
         CellStatus[][] cellStatuses;
-        MoveStatus moveStatus = MoveStatus.shot;
+        MoveStatus moveStatus = null;
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (!user.getName().equals(game.getPlayingUser().getUsername())) {
             throw new MoveException(MoveError.wrongPlayingUser);
@@ -122,7 +123,7 @@ public class GameServiceImpl implements GameService {
         } else if (user.getName().equals(game.getUser2().getUsername())) {
             cellStatuses = game.getCellStatuses1();
         } else {
-            throw new NoGameException(NoGameError.NoUser);
+            throw new NotFoundException(NotFoundError.NoUser);
         }
         CellStatus status = cellStatuses[x][y];
         switch (status) {
@@ -134,14 +135,15 @@ public class GameServiceImpl implements GameService {
             case filled -> {
                 if (wasItTheWholeShip(x, y, cellStatuses)) {
                     unavaiableing(x, y, cellStatuses);
+                    cellStatuses[x][y] = CellStatus.shot;
                     if (anyShipsLeft(cellStatuses)) {
-                        cellStatuses[x][y] = CellStatus.shot;
                         moveStatus = MoveStatus.wholeShip;
                     } else {
                         moveStatus = MoveStatus.won;
                         game.setStatus(Status.ended);
                         game.setWinner(game.getUserByName(user.getName()));
                     }
+
                 } else {
                     cellStatuses[x][y] = CellStatus.shot;
                     moveStatus = MoveStatus.shot;
@@ -151,11 +153,12 @@ public class GameServiceImpl implements GameService {
             case unavailable -> throw new MoveException(MoveError.cellUnavaiable);
 
         }
+        if(moveStatus!=MoveStatus.won){
         if (game.getPlayingUser().getUsername().equals(game.getUser1().getUsername())) {
             game.setPlayingUser(game.getUser2());
         } else {
             game.setPlayingUser(game.getUser1());
-        }
+        }}
         game.setUpdatedate(new Date());
         game.setLastMoveStatus(moveStatus);
         game.setLastX(x);
@@ -164,6 +167,7 @@ public class GameServiceImpl implements GameService {
         return moveStatus;
     }
 
+    //methode for checking if there are any ships left
     private boolean anyShipsLeft(CellStatus[][] cellStatuses) {
         for (int row = 0; row < cellStatuses.length; row++) {
             for (int col = 0; col < cellStatuses[row].length; col++) {
@@ -175,12 +179,14 @@ public class GameServiceImpl implements GameService {
         return false;
     }
 
+    // making cells unavailable
     private void markIfExist(int x, int y, CellStatus[][] cellStatus) {
         if (x >= 0 && x < GameConstants.CELL_SIZE && y >= 0 && y < GameConstants.CELL_SIZE && cellStatus[x][y] != CellStatus.shot) {
             cellStatus[x][y] = CellStatus.unavailable;
         }
     }
 
+    // how many cells does ship consist of
     private int howManyInTherow(int x, int y, CellStatus[][] board) {
         int returning = 1;
         int a = 1;
@@ -189,7 +195,7 @@ public class GameServiceImpl implements GameService {
         int d = 1;
         if (x - a >= 0) {
             try {
-                while (board[x - a][y] == CellStatus.filled && !diagnal(x - a, y, board)) {
+                while (board[x - a][y] == CellStatus.filled && !diagonal(x - a, y, board)) {
                     returning += 1;
                     board[x - a][y] = CellStatus.unavailable;
                     a--;
@@ -203,7 +209,7 @@ public class GameServiceImpl implements GameService {
         }
         if (x + b < GameConstants.CELL_SIZE) {
             try {
-                while (board[x + b][y] == CellStatus.filled && !diagnal(x + b, y, board)) {
+                while (board[x + b][y] == CellStatus.filled && !diagonal(x + b, y, board)) {
                     returning += 1;
                     board[x + b][y] = CellStatus.unavailable;
                     b++;
@@ -217,7 +223,7 @@ public class GameServiceImpl implements GameService {
         }
         if (y + c < GameConstants.CELL_SIZE) {
             try {
-                while (board[x][y + c] == CellStatus.filled && !diagnal(x, y + c, board)) {
+                while (board[x][y + c] == CellStatus.filled && !diagonal(x, y + c, board)) {
                     returning += 1;
                     board[x][y + c] = CellStatus.unavailable;
                     c++;
@@ -231,7 +237,7 @@ public class GameServiceImpl implements GameService {
         }
         if (y - d >= 0) {
             try {
-                while (board[x][y - d] == CellStatus.filled && !diagnal(x, y - d, board)) {
+                while (board[x][y - d] == CellStatus.filled && !diagonal(x, y - d, board)) {
                     returning += 1;
                     board[x][y - d] = CellStatus.unavailable;
                     d--;
@@ -246,7 +252,8 @@ public class GameServiceImpl implements GameService {
         return returning;
     }
 
-    private boolean diagnal(int x, int y, CellStatus[][] board) {
+    // checking if diagonal cells are filled
+    private boolean diagonal(int x, int y, CellStatus[][] board) {
         if (x - 1 >= 0 && y - 1 >= 0) {
             if (board[x - 1][y - 1] == CellStatus.filled) {
                 return true;
@@ -271,7 +278,7 @@ public class GameServiceImpl implements GameService {
         return false;
     }
 
-    public boolean boardValidaton(CellStatus[][] oriBoard) {
+    public boolean boardValidation(CellStatus[][] oriBoard) {
         boolean oneChecked = false, twoChecked = false, threeChecked = false, fourChecked = false, fiveChecked = false;
         int filledCells = 0;
         CellStatus[][] board = Arrays.stream(oriBoard)
@@ -282,7 +289,7 @@ public class GameServiceImpl implements GameService {
             for (int j = 0; j < board[i].length; j++) {
                 if (board[i][j] == CellStatus.filled) {
                     filledCells += 1;
-                    if (diagnal(i, j, board)) {
+                    if (diagonal(i, j, board)) {
                         return false;
                     }
                     int hmitr = howManyInTherow(i, j, board);
@@ -335,6 +342,7 @@ public class GameServiceImpl implements GameService {
         return filledCells == 15 && oneChecked && fiveChecked && twoChecked && threeChecked && fourChecked;
     }
 
+    // method that unavaiables cells around shot ship
     private void unavaiableing(int x, int y, CellStatus[][] cellStatus) {
         int a = x;
         int b = y;
@@ -419,11 +427,11 @@ public class GameServiceImpl implements GameService {
 
 
     @Override
-    public BaseGame abandon(Long id) throws NoGameException, AccessDeniedExceptions {
+    public BaseGame abandon(Long id) throws NotFoundException, AccessDeniedExceptions {
         Optional<Game> optionalGame = getGame(id);
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (optionalGame.isEmpty()) {
-            throw new NoGameException(NoGameError.NoGame);
+            throw new NotFoundException(NotFoundError.NoGame);
         }
 
         Game game = optionalGame.get();
@@ -448,6 +456,7 @@ public class GameServiceImpl implements GameService {
         return game;
     }
 
+    //abandon game after some time
     @Async
     @Scheduled(fixedRate = 300_000)
     public void abandon() {
@@ -468,25 +477,26 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public CellStatus[][] returnUsersBoard(Long id, String username) throws NoGameException {
+    public CellStatus[][] returnUsersBoard(Long id, String username) throws NotFoundException {
         Optional<Game> optionalGame = getGame(id);
         if (optionalGame.isEmpty()) {
-            throw new NoGameException(NoGameError.NoGame);
+            throw new NotFoundException(NotFoundError.NoGame);
         }
         Game game = optionalGame.get();
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         if (!user.getName().equals(username)) {
-            throw new NoGameException(NoGameError.NoUser);
+            throw new NotFoundException(NotFoundError.NoUser);
         }
         if (username.equals(game.getUser1().getUsername())) {
             return game.getCellStatuses1();
         } else if (username.equals(game.getUser2().getUsername())) {
             return game.getCellStatuses2();
         } else {
-            throw new NoGameException(NoGameError.NoUser);
+            throw new NotFoundException(NotFoundError.NoUser);
         }
     }
 
+    // making users board unknown so his opponent can't have access to his
     public CellStatus[][] unknownBoard(CellStatus[][] board) {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -500,10 +510,10 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public CellStatus[][] returnOpponentsBoard(Long id, String username) throws NoGameException {
+    public CellStatus[][] returnOpponentsBoard(Long id, String username) throws NotFoundException {
         Optional<Game> optionalGame = getGame(id);
         if (optionalGame.isEmpty()) {
-            throw new NoGameException(NoGameError.NoGame);
+            throw new NotFoundException(NotFoundError.NoGame);
         }
         Game game = optionalGame.get();
         if (!game.getStatus().equals(Status.running)) {
@@ -514,7 +524,7 @@ public class GameServiceImpl implements GameService {
             } else if (username.equals(game.getUser2().getUsername())) {
                 return unknownBoard(game.getCellStatuses1());
             } else {
-                throw new NoGameException(NoGameError.NoUser);
+                throw new NotFoundException(NotFoundError.NoUser);
             }
         }
     }
